@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dream XI Builder</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap');
+
+:root {
+  --ink: #0A0E14;
+  --ink2: #141820;
+  --ink3: #1E2430;
+  --line: rgba(255,255,255,.08);
+  --line2: rgba(255,255,255,.15);
+  --cream: #EEE8D8;
+  --muted: rgba(238,232,216,.45);
+  --gold: #E8C84A;
+  --gold2: rgba(232,200,74,.18);
+  --green: #1E4A1E;
+  --green2: #264E26;
+  --pitch-line: rgba(255,255,255,.18);
+  --yes: #3DDB76;
+  --no: #E84A4A;
+  --pos-gk:  #1A5C38;
+  --pos-def: #1A3A6E;
+  --pos-mid: #6E4E1A;
+  --pos-att: #6E1A1A;
+  --r: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--ink);
+  color: var(--cream);
+  height: 100vh;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* ═══ SCREENS ═══ */
+.screen { display: none; height: 100vh; flex-direction: column; overflow: hidden; }
+.screen.active { display: flex; }
+
+/* ═══════════════════════════════════════════
+   SCREEN 1 — TEAM PICKER
+═══════════════════════════════════════════ */
+#s-team {
+  background: radial-gradient(ellipse at 30% 20%, #1a2a1a 0%, var(--ink) 60%);
+  padding: 0;
+  overflow: hidden;
+}
+
+.team-header {
+  padding: 1.2rem 1.2rem .6rem;
+  background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, transparent 100%);
+  flex-shrink: 0;
+}
+.app-wordmark {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: .12em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.app-sub {
+  font-size: .72rem;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: .08em;
+  margin-top: .1rem;
+}
+
+.search-wrap {
+  padding: .6rem 1.2rem;
+  flex-shrink: 0;
+}
+.search-box {
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--ink3);
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  padding: .55rem .9rem;
+}
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cream);
+  font-family: 'Barlow', sans-serif;
+  font-size: .95rem;
+}
+.search-box input::placeholder { color: var(--muted); }
+.search-icon { color: var(--muted); font-size: 1rem; flex-shrink: 0; }
+
+.filter-row {
+  display: flex; gap: .4rem; overflow-x: auto;
+  padding: .4rem 1.2rem .5rem;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.filter-row::-webkit-scrollbar { display: none; }
+.f-chip {
+  white-space: nowrap;
+  padding: .28rem .75rem;
+  border-radius: 20px;
+  border: 1px solid var(--line2);
+  font-size: .75rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  background: transparent;
+  transition: all .18s;
+  flex-shrink: 0;
+}
+.f-chip.on { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 700; }
+
+.clubs-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: .3rem .8rem .8rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line2) transparent;
+}
+.club-row {
+  display: flex; align-items: center; gap: .8rem;
+  padding: .65rem .8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+  border-bottom: 1px solid var(--line);
+}
+.club-row:hover, .club-row:active { background: var(--ink3); }
+.club-badge {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: .85rem;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+  color: #fff;
+}
+.club-info { flex: 1; min-width: 0; }
+.club-name {
+  font-weight: 600;
+  font-size: .92rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.club-meta {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: .08rem;
+}
+.club-ovr {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 2 — FORMATION + FILTERS
+═══════════════════════════════════════════ */
+#s-config {
+  background: radial-gradient(ellipse at 70% 80%, #1a1a2e 0%, var(--ink) 60%);
+  padding: 1.2rem;
+  overflow-y: auto;
+  gap: .9rem;
+}
+.config-header {
+  display: flex; align-items: center; gap: .8rem;
+}
+.back-btn {
+  width: 34px; height: 34px;
+  background: var(--ink3); border: 1px solid var(--line2);
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--muted); flex-shrink: 0;
+  transition: all .15s;
+}
+.back-btn:hover { color: var(--cream); border-color: var(--line2); }
+.config-team-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 1.4rem;
+  letter-spacing: .06em; line-height: 1;
+}
+.config-team-meta { font-size: .75rem; color: var(--muted); }
+
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: .85rem;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .5rem;
+}
+
+.fm-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: .4rem; }
+.fm-btn {
+  padding: .5rem .2rem;
+  border: 1px solid var(--line2); border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem; font-weight: 600; letter-spacing: .04em;
+  cursor: pointer; color: var(--muted); background: transparent;
+  transition: all .18s;
+}
+.fm-btn.on { background: var(--ink3); border-color: var(--gold); color: var(--gold); }
+
+.filter-grid { display: flex; flex-wrap: wrap; gap: .4rem; }
+.flt-chip {
+  padding: .32rem .8rem; border-radius: 20px;
+  border: 1px solid var(--line2); font-size: .78rem;
+  cursor: pointer; color: var(--muted); background: transparent;
+  transition: all .18s;
+}
+.flt-chip.on { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 700; }
+
+.go-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 1.35rem; letter-spacing: .12em;
+  padding: .9rem; width: 100%;
+  background: var(--gold); color: var(--ink);
+  border: none; border-radius: 8px; cursor: pointer;
+  box-shadow: 0 4px 24px rgba(232,200,74,.3);
+  transition: transform .15s, box-shadow .15s;
+  margin-top: .4rem;
+}
+.go-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,200,74,.45); }
+
+/* ═══════════════════════════════════════════
+   SCREEN 3 — SWIPE
+═══════════════════════════════════════════ */
+#s-swipe {
+  background: var(--ink);
+  flex-direction: row;
+}
+
+/* ── Mini pitch panel ── */
+.pitch-panel {
+  width: 130px; flex-shrink: 0;
+  background: rgba(0,0,0,.4);
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  padding: .5rem .4rem .4rem;
+  gap: .3rem;
+}
+.pitch-panel-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .65rem; font-weight: 700; letter-spacing: .15em;
+  color: var(--gold); text-align: center;
+  padding-bottom: .25rem;
+  border-bottom: 1px solid rgba(232,200,74,.2);
+}
+.mini-pitch {
+  flex: 1;
+  background: linear-gradient(180deg, var(--green) 0%, var(--green2) 50%, var(--green) 100%);
+  border-radius: 6px; border: 1px solid var(--pitch-line);
+  position: relative; overflow: hidden;
+}
+.mini-pitch::before {
+  content:''; position:absolute;
+  top:50%; left:5%; right:5%; height:1px;
+  background: var(--pitch-line);
+}
+.mini-pitch::after {
+  content:''; position:absolute;
+  top:calc(50% - 16px); left:calc(50% - 16px);
+  width:32px; height:32px; border-radius:50%;
+  border: 1px solid var(--pitch-line);
+}
+.mini-g-t, .mini-g-b {
+  position:absolute; left:28%; right:28%; height:7%;
+  border: 1px solid var(--pitch-line);
+}
+.mini-g-t { top:0; border-top:none; }
+.mini-g-b { bottom:0; border-bottom:none; }
+.mini-rows {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  padding:.3rem .2rem;
+}
+.mini-row {
+  flex:1; display:flex; align-items:center;
+  justify-content:center; gap:2px;
+}
+.mp {
+  display:flex; flex-direction:column;
+  align-items:center; cursor:pointer;
+  transition:transform .15s;
+}
+.mp:hover { transform:scale(1.12); }
+.mj {
+  width:20px; height:20px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.5rem; font-weight:700;
+  border: 1.5px solid rgba(255,255,255,.2);
+  transition: all .2s;
+}
+.mj.GK  { background: var(--pos-gk); }
+.mj.DEF { background: var(--pos-def); }
+.mj.MID { background: var(--pos-mid); }
+.mj.ATT { background: var(--pos-att); }
+.mj.empty {
+  background: rgba(255,255,255,.05);
+  border-style: dashed;
+  border-color: rgba(255,255,255,.18);
+}
+.mj.active-slot {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 2px rgba(232,200,74,.5), 0 0 10px rgba(232,200,74,.5);
+  animation: pulse-slot .85s ease-in-out infinite alternate;
+}
+@keyframes pulse-slot {
+  from { box-shadow: 0 0 0 2px rgba(232,200,74,.4), 0 0 6px rgba(232,200,74,.4); }
+  to   { box-shadow: 0 0 0 3px rgba(232,200,74,.85), 0 0 14px rgba(232,200,74,.65); }
+}
+.mn {
+  font-size:.38rem; font-weight:600;
+  color:rgba(255,255,255,.7); text-align:center;
+  max-width:26px; line-height:1.1; margin-top:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  text-shadow:0 1px 3px rgba(0,0,0,.9);
+}
+.mn.empty { color:rgba(255,255,255,.2); font-size:.34rem; }
+.mn.active { color:rgba(232,200,74,.9); font-size:.36rem; }
+
+/* ── Swipe panel ── */
+.swipe-panel {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sw-bar {
+  padding: .55rem .8rem .4rem;
+  background: rgba(0,0,0,.35);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.sw-pos {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 1.1rem; letter-spacing: .1em;
+  color: var(--gold);
+}
+.sw-sub { font-size: .65rem; color: var(--muted); margin-top: .05rem; }
+.sw-cnt { font-size: .65rem; color: var(--muted); }
+
+.card-area {
+  flex: 1; display:flex; align-items:center; justify-content:center;
+  padding: .5rem .4rem .3rem;
+  position: relative; overflow: hidden;
+}
+.card-stack {
+  position: relative;
+  width: min(270px, 92%);
+  height: min(370px, 98%);
+}
+.player-card {
+  position: absolute; inset: 0;
+  border-radius: var(--r);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+.player-card:nth-child(2) { transform: rotate(-2.5deg) scale(.965) translateY(8px); z-index: 1; }
+.player-card:nth-child(3) { transform: rotate(2deg) scale(.93) translateY(16px); z-index: 0; }
+.player-card.top { z-index: 10; }
+.player-card.dragging { cursor: grabbing; transition: none !important; }
+
+/* Card interior */
+.card-bg { position:absolute; inset:0; }
+.card-noise {
+  position:absolute; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .5; mix-blend-mode: overlay; pointer-events:none;
+}
+.card-top-bar {
+  position:absolute; top:0; left:0; right:0; height:4px;
+}
+.card-ovr-big {
+  position:absolute; top:.9rem; left:.9rem;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:3rem; line-height:1;
+  color:rgba(255,255,255,.9);
+  text-shadow: 0 2px 12px rgba(0,0,0,.5);
+}
+.card-pos-badge {
+  position:absolute; top:.9rem; right:.9rem;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700; font-size:.65rem; letter-spacing:.12em;
+  padding:.2rem .55rem; border-radius:4px; color:#fff;
+}
+.card-pos-badge.GK  { background: var(--pos-gk); }
+.card-pos-badge.DEF { background: var(--pos-def); }
+.card-pos-badge.MID { background: var(--pos-mid); }
+.card-pos-badge.ATT { background: var(--pos-att); }
+
+/* Big jersey illustration */
+.card-jersey-art {
+  position:absolute; top:50%; left:50%;
+  transform: translate(-50%, -55%);
+  width: 100px; height: 100px;
+}
+.jersey-svg { width:100%; height:100%; }
+
+/* Stats hexagon area */
+.card-stats-grid {
+  position:absolute; bottom: 4.5rem; left:.9rem; right:.9rem;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:.3rem;
+}
+.stat-item { text-align:center; }
+.stat-val {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700; font-size:1.1rem; line-height:1;
+  color: rgba(255,255,255,.95);
+}
+.stat-lbl {
+  font-size:.52rem; font-weight:600; letter-spacing:.08em;
+  color: rgba(255,255,255,.45); text-transform:uppercase;
+  margin-top:.1rem;
+}
+
+.card-bottom {
+  position:absolute; bottom:0; left:0; right:0;
+  padding:.7rem .9rem .8rem;
+  background: linear-gradient(0deg,rgba(0,0,0,.92) 0%, rgba(0,0,0,.5) 80%, transparent 100%);
+}
+.card-name {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:1.5rem; line-height:1;
+  letter-spacing:.04em; color:#fff;
+}
+.card-pills {
+  display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.3rem;
+}
+.pill {
+  font-size:.62rem; font-weight:600; letter-spacing:.04em;
+  padding:.12rem .45rem; border-radius:20px;
+  background:rgba(255,255,255,.12); color:rgba(255,255,255,.8);
+}
+.pill.gold { background:rgba(232,200,74,.22); color:var(--gold); }
+
+/* Swipe indicators */
+.ind {
+  position:absolute; top:1.3rem; z-index:20;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:1.6rem; letter-spacing:.1em;
+  padding:.3rem .9rem; border-radius:6px; border:3px solid;
+  opacity:0; transition:opacity .1s; pointer-events:none;
+}
+.ind.yes { left:1rem; color:var(--yes); border-color:var(--yes); transform:rotate(-14deg); }
+.ind.no  { right:1rem; color:var(--no); border-color:var(--no); transform:rotate(14deg); }
+
+.no-more {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:1.5rem;
+  opacity:0; pointer-events:none; transition:opacity .3s;
+}
+.no-more.show { opacity:1; pointer-events:auto; }
+.no-more p { color:var(--muted); font-size:.85rem; margin-bottom:.8rem; }
+.ghost-btn {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700; font-size:.95rem; letter-spacing:.1em;
+  padding:.5rem 1.5rem;
+  background:transparent; border:1px solid var(--gold);
+  color:var(--gold); border-radius:6px; cursor:pointer;
+}
+
+.sw-actions {
+  display:flex; justify-content:center; align-items:center;
+  gap:1.1rem; padding:.5rem .8rem .75rem; flex-shrink:0;
+}
+.act {
+  width:50px; height:50px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.25rem; cursor:pointer; border:none;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 3px 10px rgba(0,0,0,.4);
+}
+.act:hover { transform:scale(1.1); }
+.act:active { transform:scale(.92); }
+.act-no  { background:rgba(232,74,74,.12); color:var(--no);  border:2px solid rgba(232,74,74,.35); }
+.act-yes { background:rgba(61,219,118,.12); color:var(--yes); border:2px solid rgba(61,219,118,.35); }
+.act-skip { background:rgba(255,255,255,.06); color:var(--muted); border:2px solid var(--line2); font-size:.85rem; }
+
+/* ═══════════════════════════════════════════
+   SCREEN 4 — RESULT
+═══════════════════════════════════════════ */
+#s-result { background: var(--ink); }
+.res-header {
+  padding:.8rem 1rem; flex-shrink:0;
+  background:rgba(0,0,0,.4);
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.res-title {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:1.5rem; letter-spacing:.08em;
+  color:var(--gold);
+}
+.res-meta { font-size:.72rem; color:var(--muted); margin-top:.1rem; }
+.res-fm {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700; font-size:1rem; letter-spacing:.06em;
+  color:var(--muted);
+}
+
+.pitch-wrap { flex:1; padding:.6rem; display:flex; overflow:hidden; }
+.big-pitch {
+  flex:1;
+  background: linear-gradient(180deg, var(--green) 0%, var(--green2) 50%, var(--green) 100%);
+  border-radius:10px; border:1.5px solid var(--pitch-line);
+  position:relative; overflow:hidden;
+}
+.big-pitch::before {
+  content:''; position:absolute;
+  top:50%; left:5%; right:5%; height:1px;
+  background: var(--pitch-line);
+}
+.big-pitch::after {
+  content:''; position:absolute;
+  top:calc(50% - 34px); left:calc(50% - 34px);
+  width:68px; height:68px; border-radius:50%;
+  border:1px solid var(--pitch-line);
+}
+.big-g-t,.big-g-b {
+  position:absolute; left:30%; right:30%; height:10%;
+  border:1px solid var(--pitch-line);
+}
+.big-g-t { top:0; border-top:none; }
+.big-g-b { bottom:0; border-bottom:none; }
+.big-rows {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  padding:.5rem .3rem;
+}
+.big-row { flex:1; display:flex; align-items:center; justify-content:center; gap:.35rem; }
+.big-player {
+  display:flex; flex-direction:column; align-items:center;
+  cursor:pointer; transition:transform .15s;
+}
+.big-player:hover { transform:scale(1.1); }
+.big-jersey {
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem;
+  border:2px solid rgba(255,255,255,.22);
+  box-shadow:0 2px 8px rgba(0,0,0,.5);
+}
+.big-jersey.GK  { background: radial-gradient(circle at 40% 35%,#267a4e,var(--pos-gk)); }
+.big-jersey.DEF { background: radial-gradient(circle at 40% 35%,#2a5aaa,var(--pos-def)); }
+.big-jersey.MID { background: radial-gradient(circle at 40% 35%,#aa8a2a,var(--pos-mid)); }
+.big-jersey.ATT { background: radial-gradient(circle at 40% 35%,#aa2a2a,var(--pos-att)); }
+.big-jersey.empty { background:rgba(255,255,255,.07); border-style:dashed; }
+.big-name {
+  font-size:.58rem; font-weight:600;
+  color:rgba(255,255,255,.92); text-align:center;
+  max-width:50px; line-height:1.2; margin-top:.18rem;
+  text-shadow:0 1px 3px rgba(0,0,0,.9);
+}
+.big-name.empty { color:rgba(255,255,255,.25); }
+
+.res-actions {
+  padding:.65rem .9rem .85rem; flex-shrink:0;
+  display:flex; gap:.6rem;
+}
+.res-actions .go-btn { margin:0; flex:1; font-size:1.1rem; padding:.75rem; }
+.share-btn {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700; font-size:1rem; letter-spacing:.08em;
+  padding:.75rem 1.1rem;
+  background:transparent; border:1px solid var(--line2);
+  color:var(--muted); border-radius:8px; cursor:pointer;
+  transition:all .2s;
+}
+.share-btn:hover { border-color:var(--cream); color:var(--cream); }
+
+/* ── Toast ── */
+.toast {
+  position:fixed; bottom:1.5rem; left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--gold); color:var(--ink);
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700; font-size:.95rem; letter-spacing:.06em;
+  padding:.5rem 1.3rem; border-radius:6px;
+  transition:transform .28s; z-index:999; pointer-events:none;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ── Animations ── */
+@keyframes flyOut {
+  to { opacity:0; transform:translateX(var(--fx)) translateY(-40px) rotate(var(--fr)); }
+}
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── Mobile narrow ── */
+@media(max-width:480px) {
+  #s-swipe { flex-direction:column; }
+  .pitch-panel {
+    width:100%; flex-direction:row; height:120px;
+    border-right:none; border-bottom:1px solid var(--line);
+    padding:.4rem .6rem; gap:.5rem;
+  }
+  .pitch-panel-lbl {
+    writing-mode:vertical-rl; text-orientation:mixed;
+    border-bottom:none; border-right:1px solid rgba(232,200,74,.2);
+    padding-bottom:0; padding-right:.25rem; font-size:.6rem;
+  }
+  .mini-pitch { height:100%; }
+  .card-stack { width:min(250px,85%); height:min(300px,96%); }
+  .card-jersey-art { width:80px; height:80px; }
+  .card-ovr-big { font-size:2.4rem; }
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══ SCREEN 1: TEAM PICKER ═══ -->
+<div class="screen active" id="s-team">
+  <div class="team-header">
+    <div class="app-wordmark">Dream XI</div>
+    <div class="app-sub">FC 26 · 662 Vereine · 18.405 Spieler</div>
+  </div>
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">⚽</span>
+      <input type="text" id="search-input" placeholder="Verein suchen…" autocomplete="off" autocorrect="off">
+    </div>
+  </div>
+  <div class="filter-row" id="league-filters">
+    <div class="f-chip on" data-lvl="0">Alle Ligen</div>
+    <div class="f-chip" data-lvl="1">1. Liga</div>
+    <div class="f-chip" data-lvl="2">2. Liga</div>
+    <div class="f-chip" data-league="Bundesliga">Bundesliga</div>
+    <div class="f-chip" data-league="Premier League">Premier League</div>
+    <div class="f-chip" data-league="La Liga">La Liga</div>
+    <div class="f-chip" data-league="Serie A">Serie A</div>
+    <div class="f-chip" data-league="Ligue 1">Ligue 1</div>
+  </div>
+  <div class="clubs-list" id="clubs-list"></div>
+</div>
+
+<!-- ═══ SCREEN 2: CONFIG ═══ -->
+<div class="screen" id="s-config">
+  <div class="config-header">
+    <button class="back-btn" id="back-config">←</button>
+    <div>
+      <div class="config-team-name" id="cfg-team-name">—</div>
+      <div class="config-team-meta" id="cfg-team-meta">—</div>
+    </div>
+  </div>
+  <div>
+    <div class="section-title">Formation</div>
+    <div class="fm-grid" id="fm-grid">
+      <button class="fm-btn on" data-fm="4-3-3">4-3-3</button>
+      <button class="fm-btn" data-fm="4-4-2">4-4-2</button>
+      <button class="fm-btn" data-fm="4-2-3-1">4-2-3-1</button>
+      <button class="fm-btn" data-fm="3-5-2">3-5-2</button>
+      <button class="fm-btn" data-fm="3-4-3">3-4-3</button>
+      <button class="fm-btn" data-fm="5-3-2">5-3-2</button>
+      <button class="fm-btn" data-fm="4-1-4-1">4-1-4-1</button>
+      <button class="fm-btn" data-fm="4-5-1">4-5-1</button>
+    </div>
+  </div>
+  <div>
+    <div class="section-title">Spieler-Filter</div>
+    <div class="filter-grid" id="filter-grid">
+      <div class="flt-chip on"  data-flt="all">Alle</div>
+      <div class="flt-chip" data-flt="top">Top-Spieler (OVR 75+)</div>
+      <div class="flt-chip" data-flt="young">Talente (Pot 80+)</div>
+      <div class="flt-chip" data-flt="pace">Schnell (Pace 80+)</div>
+      <div class="flt-chip" data-flt="physical">Physisch (Phy 80+)</div>
+    </div>
+  </div>
+  <button class="go-btn" id="start-swipe-btn">Swipe starten →</button>
+</div>
+
+<!-- ═══ SCREEN 3: SWIPE ═══ -->
+<div class="screen" id="s-swipe">
+  <div class="pitch-panel">
+    <div class="pitch-panel-lbl">DEINE ELF</div>
+    <div class="mini-pitch">
+      <div class="mini-g-t"></div>
+      <div class="mini-g-b"></div>
+      <div class="mini-rows" id="mini-rows"></div>
+    </div>
+  </div>
+  <div class="swipe-panel">
+    <div class="sw-bar">
+      <div>
+        <div class="sw-pos" id="sw-pos">TORWART</div>
+        <div class="sw-sub" id="sw-sub">Slot 1 von 11</div>
+      </div>
+      <div class="sw-cnt" id="sw-cnt"></div>
+    </div>
+    <div class="card-area">
+      <div class="card-stack" id="card-stack">
+        <div class="no-more" id="no-more">
+          <div style="font-size:2rem;margin-bottom:.6rem">🤷</div>
+          <p>Keine weiteren Spieler mit diesen Filtern.</p>
+          <button class="ghost-btn" id="skip-nmore">Position überspringen →</button>
+        </div>
+      </div>
+      <div class="ind yes" id="ind-yes">✓ YES</div>
+      <div class="ind no"  id="ind-no">✗ NEIN</div>
+    </div>
+    <div class="sw-actions">
+      <button class="act act-no"   id="btn-no">✗</button>
+      <button class="act act-skip" id="btn-skip" title="Position überspringen">↩</button>
+      <button class="act act-yes"  id="btn-yes">✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 4: RESULT ═══ -->
+<div class="screen" id="s-result">
+  <div class="res-header">
+    <div>
+      <div class="res-title" id="res-title">Dream XI</div>
+      <div class="res-meta" id="res-meta">Tippe zum Austauschen</div>
+    </div>
+    <div class="res-fm" id="res-fm">4-3-3</div>
+  </div>
+  <div class="pitch-wrap">
+    <div class="big-pitch">
+      <div class="big-g-t"></div>
+      <div class="big-g-b"></div>
+      <div class="big-rows" id="big-rows"></div>
+    </div>
+  </div>
+  <div class="res-actions">
+    <button class="go-btn" id="new-team-btn">Neues Team</button>
+    <button class="share-btn" id="share-btn">📋 Teilen</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════
+const CLUBS_RAW   = {"243":["Real Madrid","La Liga",1,30,91],"21":["FC Bayern München","Bundesliga",1,26,89],"73":["Paris Saint-Germain","Ligue 1",1,23,90],"44":["Inter","Serie A",1,25,88],"9":["Liverpool","Premier League",1,28,91],"10":["Manchester City","Premier League",1,26,90],"240":["Atlético Madrid","La Liga",1,25,88],"605":["Al Hilal","Pro League",1,36,84],"11":["Manchester United","Premier League",1,26,87],"448":["Athletic Club","La Liga",1,27,86],"47":["AC Milan","Serie A",1,23,87],"112893":["Inter Miami","Major League Soccer",1,26,86],"13":["Newcastle United","Premier League",1,28,86],"22":["Borussia Dortmund","Bundesliga",1,28,87],"1":["Arsenal","Premier League",1,24,88],"241":["FC Barcelona","La Liga",1,28,89],"48":["Napoli","Serie A",1,27,87],"45":["Juventus","Serie A",1,26,85],"32":["Bayer 04 Leverkusen","Bundesliga",1,27,85],"5":["Chelsea","Premier League",1,30,87],"326":["Fenerbahçe SK","Süper Lig",1,28,85],"211":["Dinamo Zagreb","Hrvatska nogometna liga",1,33,80],"325":["Galatasaray SK","Süper Lig",1,26,87],"18":["Tottenham Hotspur","Premier League",1,29,84],"112391":["Al Qadsiah FC","Pro League",1,31,83],"327":["Beşiktaş JK","Süper Lig",1,26,82],"1876":["River Plate","Liga Profesional de Fútbol",1,34,78],"2":["Aston Villa","Premier League",1,24,85],"52":["Roma","Serie A",1,28,86],"237":["Sporting CP","Primeira Liga",1,28,83],"247":["PSV","Eredivisie",1,27,81],"86":["Rangers FC","Premiership",1,28,77],"112387":["Al Ahli SFC","Pro League",1,31,84],"449":["Real Betis Balompié","La Liga",1,32,84],"234":["SL Benfica","Primeira Liga",1,31,82],"453":["RCD Mallorca","La Liga",1,26,81],"66":["Olympique Lyonnais","Ligue 1",1,26,81],"112139":["Al Nassr","Pro League",1,32,85],"1808":["Brighton & Hove Albion","Premier League",1,26,82],"246":["Feyenoord","Eredivisie",1,33,80],"78":["Celtic","Premiership",1,30,79],"14":["Nottingham Forest","Premier League",1,28,83],"483":["Villarreal CF","La Liga",1,29,83],"46":["Lazio","Serie A",1,31,84],"19":["West Ham United","Premier League",1,26,83],"1860":["Getafe CF","La Liga",1,23,81],"219":["Olympique de Marseille","Ligue 1",1,32,84],"112096":["Al Ettifaq","Pro League",1,29,78],"450":["RC Celta","La Liga",1,28,83],"1896":["Sporting Clube de Braga","Primeira Liga",1,29,81],"189":["Bologna","Serie A",1,27,82],"457":["Real Sociedad","La Liga",1,26,83],"39":["Atalanta","Serie A",1,26,84],"175":["VfL Wolfsburg","Bundesliga",1,29,80],"266":["SK Slavia Praha","První liga",1,29,78],"1831":["1. FC Union Berlin","Bundesliga",1,28,80],"110374":["Fiorentina","Serie A",1,30,85],"1794":["Sheffield United","Championship",2,34,77],"100761":["FCSB","Liga I",1,28,73],"111674":["Al Shabab","Pro League",1,30,81],"112172":["RB Leipzig","Bundesliga",1,29,85],"110556":["Genoa","Serie A",1,29,77],"54":["Torino","Serie A",1,30,82],"106":["Sunderland","Premier League",1,36,85],"1877":["Boca Juniors","Liga Profesional de Fútbol",1,35,78],"38":["SV Werder Bremen","Bundesliga",1,32,81],"72":["OGC Nice","Ligue 1",1,28,80],"379":["Stade de Reims","Ligue 2",2,28,76],"112996":["Los Angeles FC","Major League Soccer",1,27,85],"607":["Al Ittihad","Pro League",1,32,85],"1796":["Burnley","Premier League",1,32,80],"169":["1. FSV Mainz 05","Bundesliga",1,30,81],"461":["Valencia CF","La Liga",1,28,81],"278":["AEK Athens","Super League",1,32,78],"101047":["Dynamo Kyiv","Premier League",1,29,78],"1925":["Brentford","Premier League",1,31,80],"1799":["Crystal Palace","Premier League",1,26,82],"393":["PAOK","Super League",1,29,78],"300":["Viking FK","Eliteserien",1,28,76],"245":["Ajax","Eredivisie",1,30,78],"517":["Botafogo","Série A",1,20,83],"1842":["Cagliari","Serie A",1,28,77],"1943":["AFC Bournemouth","Premier League",1,27,80],"69":["AS Monaco","Ligue 1",1,28,82],"1048":["Internacional","Série A",1,20,80],"280":["Olympiacos FC","Super League",1,29,80],"101083":["Estudiantes de La Plata","Liga Profesional de Fútbol",1,30,79],"1824":["Eintracht Frankfurt","Bundesliga",1,29,82],"110062":["Girona FC","La Liga",1,27,80],"65":["Lille OSC","Ligue 1",1,29,80],"436":["Trabzonspor","Süper Lig",1,24,80],"113149":["FC Cincinnati","Major League Soccer",1,28,79],"100409":["FC Augsburg","Bundesliga",1,29,77],"1745":["Como","Serie A",1,28,81],"101100":["Atlético Nacional","Categoría Primera A",1,30,76],"1861":["UD Almería","La Liga 2",2,29,75],"36":["VfB Stuttgart","Bundesliga",1,32,83],"111768":["Beijing Guoan","Super League",1,35,74],"101088":["Vélez Sarsfield","Liga Profesional de Fútbol",1,34,75],"481":["Sevilla FC","La Liga",1,31,78],"673":["KRC Genk","Pro League",1,28,78],"110738":["Pisa","Serie A",1,30,76],"7":["Everton","Premier League",1,24,84],"567":["Fluminense","Série A",1,20,80],"74":["Stade Rennais FC","Ligue 1",1,21,80],"31":["1. FC Köln","Bundesliga",1,30,77],"111811":["Monza","Serie B",2,28,78],"110980":["Colo-Colo","Primera Division",1,27,77],"1719":["Vitória","Série A",1,20,74],"480":["Rayo Vallecano","La Liga",1,29,81],"160":["VfL Bochum 1848","2. Bundesliga",2,33,76],"1884":["Panathinaikos FC","Super League",1,33,78],"101085":["Racing Club","Liga Profesional de Fútbol",1,33,78],"110827":["Real Oviedo","La Liga",1,32,76],"144":["Fulham FC","Premier League",1,24,82],"8":["Leeds United","Premier League",1,26,81],"1837":["Sampdoria","Serie B",2,29,75],"113037":["Al Riyadh","Pro League",1,34,78],"64":["RC Lens","Ligue 1",1,28,77],"23":["Borussia Mönchengladbach","Bundesliga",1,28,81],"383":["Palmeiras","Série A",1,20,82],"1035":["Atlético Mineiro","Série A",1,20,81],"131798":["NEOM SC","Pro League",1,29,79],"918":["FK Bodø/Glimt","Eliteserien",1,27,77],"110776":["Gaziantep FK","Süper Lig",1,28,76],"110580":["Rosario Central","Liga Profesional de Fútbol",1,29,82],"112390":["Al Fateh","Pro League",1,31,77],"112393":["Al Taawoun FC","Pro League",1,29,78],"231":["Club Brugge KV","Pro League",1,31,80],"70":["Montpellier HSC","Ligue 2",2,26,75],"569":["Vasco da Gama","Série A",1,20,76],"1041":["Corinthians","Série A",1,20,81],"748":["Samsunspor","Süper Lig",1,25,75],"101037":["Çaykur Rizespor","Süper Lig",1,23,76],"110396":["Newell's Old Boys","Liga Profesional de Fútbol",1,32,77],"112809":["Famalicão","Primeira Liga",1,31,74],"236":["FC Porto","Primeira Liga",1,28,84],"894":["FC Zürich","Super League",1,32,74],"1832":["Karlsruher SC","2. Bundesliga",2,27,76],"10029":["TSG 1899 Hoffenheim","Bundesliga",1,33,83],"111144":["Seattle Sounders FC","Major League Soccer",1,30,75],"111817":["Paris FC","Ligue 1",1,29,81],"111974":["Sassuolo","Serie A",1,30,82],"100087":["Oud-Heverlee Leuven","Pro League",1,30,74],"101033":["Konyaspor","Süper Lig",1,24,76],"50":["Parma","Serie A",1,30,75],"110":["Wolverhampton Wanderers","Premier League",1,26,79],"12":["Middlesbrough","Championship",2,26,73],"2055":["Gimcheon Sangmu FC","K League 1",1,38,75],"101112":["Vancouver Whitecaps FC","Major League Soccer",1,26,80],"206":["Hellas Verona FC","Serie A",1,29,78],"697":["LA Galaxy","Major League Soccer",1,27,80],"110395":["Lanús","Liga Profesional de Fútbol",1,35,78],"263":["Hajduk Split","Hrvatska nogometna liga",1,29,79],"113018":["St. Louis CITY SC","Major League Soccer",1,31,77],"2014":["Union Saint-Gilloise","Pro League",1,27,78],"1800":["Coventry City","Championship",2,23,74],"111393":["Adelaide United","A-League Men",1,26,73],"112883":["Al Khaleej","Pro League",1,27,80],"267":["Sparta Praha","První liga",1,27,78],"452":["RCD Espanyol","La Liga",1,25,79],"896":["FC Basel 1893","Super League",1,31,78],"982":["FC Seoul","K League 1",1,36,75],"1903":["FC Utrecht","Eredivisie",1,33,77],"1843":["Palermo FC","Serie B",2,25,74],"576":["Holstein Kiel","2. Bundesliga",2,33,73],"110832":["Granada CF","La Liga 2",2,27,72],"111235":["1. FC Heidenheim 1846","Bundesliga",1,27,76],"94":["Ipswich Town","Championship",2,27,76],"76":["RC Strasbourg Alsace","Ligue 1",1,29,78],"320":["Malmö FF","Allsvenskan",1,30,73],"229":["RSC Anderlecht","Pro League",1,32,77],"111701":["Al Ain","Pro League",1,27,79],"110329":["FC St. Pauli","Bundesliga",1,29,77],"112689":["Platense","Liga Profesional de Fútbol",1,33,72],"378":["Stade Brestois 29","Ligue 1",1,24,77],"114162":["Nashville SC","Major League Soccer",1,28,79],"111339":["Kasımpaşa SK","Süper Lig",1,24,76],"111710":["Defensa y Justicia","Liga Profesional de Fútbol",1,30,73],"100646":["Sparta Rotterdam","Eredivisie",1,26,72],"28":["Hamburger SV","Bundesliga",1,32,78],"111065":["Real Salt Lake","Major League Soccer",1,26,74],"55":["Udinese","Serie A",1,28,78],"101014":["Medipol Başakşehir FK","Süper Lig",1,28,75],"744":["Rio Ave FC","Primeira Liga",1,29,75],"25":["SC Freiburg","Bundesliga",1,27,82],"1853":["Levante UD","La Liga",1,27,78],"101108":["Club Olimpia","División Profesional",1,19,74],"110093":["Independiente","Liga Profesional de Fútbol",1,29,78],"819":["FC København","Superliga",1,27,77],"101084":["Gimnasia y Esgrima La Plata","Liga Profesional de Fútbol",1,37,73],"1629":["Grêmio","Série A",1,20,75],"324":["Servette FC","Super League",1,27,75],"689":["New York Red Bulls","Major League Soccer",1,31,79],"111022":["Belgrano de Córdoba","Liga Profesional de Fútbol",1,32,79],"269":["Brøndby IF","Superliga",1,24,75],"298":["Rosenborg BK","Eliteserien",1,22,73],"1906":["AZ Alkmaar","Eredivisie",1,29,79],"112828":["New York City FC","Major League Soccer",1,27,75],"116360":["Chengdu Rongcheng","Super League",1,31,75],"717":["Alverca","Primeira Liga",1,34,73],"230":["Royal Antwerp FC","Pro League",1,31,77],"110839":["SD Huesca","La Liga 2",2,28,72],"1874":["Ferencvárosi Torna Club","Nemzeti Bajnokság I",1,33,78],"191":["FC Red Bull Salzburg","Bundesliga",1,30,74],"1530":["Angers SCO","Ligue 1",1,29,76],"209":["SK Sturm Graz","Bundesliga",1,27,75],"687":["Columbus Crew","Major League Soccer",1,26,75],"1809":["Toulouse FC","Ligue 1",1,31,78],"621":["Livingston FC","Premiership",1,27,68],"101025":["Gençlerbirliği SK","Süper Lig",1,29,76],"693":["Chicago Fire","Major League Soccer",1,29,77],"1792":["Norwich City","Championship",2,31,75],"710":["Djurgårdens IF","Allsvenskan",1,27,71],"112513":["FC Arouca","Primeira Liga",1,26,73],"1516":["FC Midtjylland","Superliga",1,24,75],"479":["CA Osasuna","La Liga",1,26,82],"472":["UD Las Palmas","La Liga 2",2,35,76],"698":["Houston Dynamo","Major League Soccer",1,30,73],"711":["BK Häcken","Allsvenskan",1,33,72],"131174":["Eyüpspor","Süper Lig",1,25,75],"88":["Birmingham City","Championship",2,27,76],"112494":["Südtirol","Serie B",2,25,72],"433":["AIK","Allsvenskan",1,27,73],"71":["FC Nantes","Ligue 1",1,26,76],"10032":["FC Lugano","Super League",1,29,75],"1474":["Pohang Steelers","K League 1",1,38,75],"101110":["Peñarol","Primera División",1,24,78],"101059":["Shakhtar Donetsk","Premier League",1,33,77],"101099":["América de Cali","Categoría Primera A",1,28,72],"114326":["Raków Częstochowa","Ekstraklasa",1,26,73],"232":["Standard de Liège","Pro League",1,29,73],"468":["Elche CF","La Liga",1,30,76],"919":["SK Brann","Eliteserien",1,27,74],"112885":["Atlanta United","Major League Soccer",1,26,78],"113222":["Al Hazem FC","Pro League",1,31,76],"112224":["Melbourne City FC","A-League Men",1,24,70],"1806":["Stoke City","Championship",2,28,74],"110915":["Cesena FC","Serie B",2,23,72],"111019":["Argentinos Juniors","Liga Profesional de Fútbol",1,32,76],"17":["Southampton","Championship",2,29,74],"111706":["Godoy Cruz","Liga Profesional de Fútbol",1,36,75],"674":["KAA Gent","Pro League",1,28,76],"111140":["Portland Timbers","Major League Soccer",1,26,76],"111013":["Sporting Cristal","Liga 1",1,22,72],"252":["LASK Linz","Bundesliga",1,28,74],"244":["Real Zaragoza","La Liga 2",2,33,73],"205":["Venezia","Serie B",2,27,74],"100888":["CD Leganés","La Liga 2",2,27,76],"111651":["Toronto FC","Major League Soccer",1,25,75],"1478":["Jeju United FC","K League 1",1,33,70],"95":["Leicester City","Championship",2,29,76],"694":["Colorado Rapids","Major League Soccer",1,24,75],"29":["1. FC Kaiserslautern","2. Bundesliga",2,30,72],"598":["São Paulo","Série A",1,20,78],"111008":["Libertad","División Profesional",1,28,76],"15029":["Universidad de Chile","Primera Division",1,26,75],"110751":["Universitatea Cluj","Liga I",1,28,72],"68":["FC Metz","Ligue 1",1,26,76],"111434":["Cremonese","Serie A",1,30,78],"110741":["Spezia","Serie B",2,26,74],"112670":["Talleres","Liga Profesional de Fútbol",1,26,77],"898":["FC St.Gallen 1879","Super League",1,24,73],"1805":["Grenoble Foot 38","Ligue 2",2,30,72],"101020":["Kayserispor","Süper Lig",1,29,73],"109":["West Bromwich Albion","Championship",2,24,74],"131439":["San Diego FC","Major League Soccer",1,29,78],"10846":["Burgos CF","La Liga 2",2,27,72],"111117":["Fatih Karagümrük","Süper Lig",1,27,74],"111769":["Changchun Yatai","Super League",1,31,70],"111138":["Minnesota United FC","Major League Soccer",1,21,74],"1795":["Watford","Championship",2,29,74],"900":["BSC Young Boys","Super League",1,26,74],"1473":["Ulsan HD FC","K League 1",1,29,75],"97":["Millwall FC","Championship",2,33,74],"1598":["Bahia","Série A",1,20,79],"110724":["KV Mechelen","Pro League",1,27,75],"1926":["Blackpool FC","League One",3,22,71],"1919":["Bristol City","Championship",2,29,73],"77":["Aberdeen","Premiership",1,28,75],"1043":["Flamengo","Série A",1,20,81],"420":["Górnik Zabrze","Ekstraklasa",1,27,71],"308":["Universitatea Craiova","Liga I",1,27,71],"1952":["Hull City","Championship",2,29,74],"34":["FC Schalke 04","2. Bundesliga",2,31,73],"702":["IFK Norrköping","Allsvenskan",1,25,71],"1951":["Oxford United","Championship",2,30,71],"568":["Cruzeiro","Série A",1,20,76],"110747":["Cracovia","Ekstraklasa",1,28,71],"1801":["Preston North End","Championship",2,29,72],"110986":["LDU Quito","Serie A",1,25,73],"113217":["Damac FC","Pro League",1,25,73],"112606":["Orlando City SC","Major League Soccer",1,28,76],"10030":["SC Paderborn 07","2. Bundesliga",2,29,72],"111774":["Tianjin Jinmen Tiger","Super League",1,28,74],"111010":["Alianza Lima","Liga 1",1,30,73],"1786":["Randers FC","Superliga",1,26,72],"1887":["Vitória SC","Primeira Liga",1,28,73],"114640":["Charlotte FC","Major League Soccer",1,27,77],"111325":["Club Nacional de Football","Primera División",1,20,79],"110468":["Viktoria Plzeň","První liga",1,26,75],"100632":["Go Ahead Eagles","Eredivisie",1,30,74],"166":["Hertha BSC","2. Bundesliga",2,30,75],"256":["FK Austria Wien","Bundesliga",1,28,74],"111334":["FBC Melgar","Liga 1",1,23,73],"110908":["Catanzaro","Serie B",2,28,74],"1908":["FC Twente","Eredivisie",1,28,78],"113060":["Al Akhdoud Saudi Club","Pro League",1,26,74],"1944":["Cambridge United","League Two",4,26,68],"1438":["Santa Clara","Primeira Liga",1,26,74],"116361":["Wuhan Three Towns","Super League",1,32,72],"1871":["Legia Warszawa","Ekstraklasa",1,31,73],"110955":["Shanghai Shenhua","Super League",1,36,73],"1790":["Portsmouth","Championship",2,32,74],"1900":["Moreirense FC","Primeira Liga",1,25,74],"101032":["Kocaelispor","Süper Lig",1,26,76],"62":["En Avant Guingamp","Ligue 2",2,25,71],"111014":["Universitario de Deportes","Liga 1",1,25,72],"81":["Hibernian","Premiership",1,27,71],"459":["Real Sporting de Gijón","La Liga 2",2,30,73],"110912":["Padova","Serie B",2,27,71],"111711":["Huracán","Liga Profesional de Fútbol",1,29,74],"111716":["Club Atlético Unión","Liga Profesional de Fútbol",1,28,73],"270":["Silkeborg IF","Superliga",1,28,70],"112493":["Carrarese","Serie B",2,30,71],"165":["SpVgg Greuther Fürth","2. Bundesliga",2,28,71],"1793":["Reading FC","League One",3,31,70],"112163":["Zhejiang FC","Super League",1,29,75],"467":["SD Eibar","La Liga 2",2,31,72],"1923":["Luton Town","League One",3,30,72],"131735":["Al Kholood","Pro League",1,26,74],"1848":["SSC Bari","Serie B",2,29,74],"242":["RC Deportivo de La Coruña","La Liga 2",2,25,76],"15":["Queens Park Rangers","Championship",2,31,74],"110953":["Instituto Atlético Central Córdoba","Liga Profesional de Fútbol",1,30,75],"1933":["Wycombe Wanderers","League One",3,28,68],"114510":["Casa Pia","Primeira Liga",1,31,72],"680":["Sint-Truidense VV","Pro League",1,24,72],"110990":["Deportivo Táchira","Primera Division",1,23,70],"111779":["Henan FC","Super League",1,32,75],"112713":["Club Atlético Sarmiento","Liga Profesional de Fútbol",1,32,71],"1968":["Cádiz CF","La Liga 2",2,26,77],"89":["Charlton Athletic","Championship",2,24,74],"131488":["Qingdao West Coast FC","Super League",1,31,74],"110746":["Pogoń Szczecin","Ekstraklasa",1,23,74],"537":["FCV Dender EH","Pro League",1,25,70],"112134":["Philadelphia Union","Major League Soccer",1,25,75],"100135":["APOEL FC","1. Division",1,29,74],"271":["Aarhus Gymnastikforening","Superliga",1,23,72],"113142":["Alanyaspor","Süper Lig",1,27,75],"462":["Real Valladolid CF","La Liga 2",2,31,74],"691":["New England Revolution","Major League Soccer",1,24,79],"700":["IF Elfsborg","Allsvenskan",1,24,72],"111020":["Independiente Rivadavia","Liga Profesional de Fútbol",1,33,75],"634":["Fortuna Sittard","Eredivisie",1,31,71],"1947":["Wrexham","Championship",2,32,74],"696":["Sporting Kansas City","Major League Soccer",1,24,75],"113057":["Al Fayha","Pro League",1,28,80],"110975":["Universidad Católica","Primera Division",1,27,74],"417":["Molde FK","Eliteserien",1,28,74],"681":["KVC Westerlo","Pro League",1,30,74],"10020":["GD Estoril Praia","Primeira Liga",1,32,73],"131173":["Qingdao Hainiu FC","Super League",1,33,71],"100757":["Dinamo Bucureşti","Liga I",1,25,70],"1807":["Sheffield Wednesday","Championship",2,27,73],"708":["Hammarby Fotboll","Allsvenskan",1,25,73],"111928":["San Jose Earthquakes","Major League Soccer",1,26,78],"347":["Lecce","Serie A",1,30,81],"1910":["NEC Nijmegen","Eredivisie",1,31,79],"1960":["Swansea City","Championship",2,25,73],"91":["Derby County","Championship",2,27,74],"112992":["Atlético Bucaramanga","Categoría Primera A",1,23,72],"111708":["Atlético Tucumán","Liga Profesional de Fútbol",1,30,73],"131531":["Yunnan Yukun","Super League",1,29,70],"3":["Blackburn Rovers","Championship",2,29,72],"111400":["Sydney FC","A-League Men",1,25,73],"111715":["Tigre","Liga Profesional de Fútbol",1,32,73],"1744":["Modena","Serie B",2,26,72],"254":["SK Rapid","Bundesliga",1,31,73],"100325":["HJK Helsinki","Veikkausliiga",1,31,71],"1738":["Le Havre AC","Ligue 1",1,25,75],"1816":["Amiens SC","Ligue 2",2,26,71],"741":["Antalyaspor","Süper Lig",1,27,74],"1888":["Gil Vicente FC","Primeira Liga",1,29,75],"111097":["Motor Lublin","Ekstraklasa",1,25,70],"111724":["Shandong Taishan","Super League",1,31,75],"112072":["Mjällby AIF","Allsvenskan",1,27,71],"1854":["Albacete Balompié","La Liga 2",2,26,72],"1815":["Clermont Foot 63","Ligue 2",2,28,69],"463":["Deportivo Alavés","La Liga",1,25,78],"920":["Vålerenga Fotball","Eliteserien",1,23,69],"2056":["Daegu FC","K League 1",1,38,74],"1715":["FC Thun","Super League",1,26,69],"110502":["SV Darmstadt 98","2. Bundesliga",2,28,73],"111707":["CA Aldosivi","Liga Profesional de Fútbol",1,31,71],"114604":["Macarthur FC","A-League Men",1,22,69],"780":["SV Ried","Bundesliga",1,29,68],"112716":["Cerro Porteño","División Profesional",1,27,73],"101106":["Once Caldas","Categoría Primera A",1,27,75],"110321":["Pau FC","Ligue 2",2,24,69],"114161":["Austin FC","Major League Soccer",1,24,75],"111052":["Fortaleza","Série A",1,20,74],"110968":["Bolívar","División de Fútbol Profesional",1,27,75],"131487":["Shenzhen Peng City","Super League",1,27,72],"110500":["Eintracht Braunschweig","2. Bundesliga",2,27,71],"310":["Rapid Bucuresti","Liga I",1,31,72],"1750":["Cercle Brugge KSV","Pro League",1,29,72],"112965":["Central Cordoba SdE","Liga Profesional de Fútbol",1,33,71],"456":["Racing Santander","La Liga 2",2,29,75],"113044":["Barracas Central","Liga Profesional de Fútbol",1,29,74],"112540":["Shanghai Port","Super League",1,35,74],"4":["Bolton Wanderers","League One",3,31,70],"531":["SC Preußen Münster","2. Bundesliga",2,30,72],"217":["FC Lorient","Ligue 1",1,26,76],"1788":["FC Nordsjælland","Superliga",1,26,72],"873":["Lech Poznań","Ekstraklasa",1,29,74],"113888":["Qarabağ FK","Premyer Liqa",1,25,72],"1904":["NAC Breda","Eredivisie",1,30,70],"159":["DSC Arminia Bielefeld","2. Bundesliga",2,31,72],"110770":["FC Sion","Super League",1,29,70],"131739":["Auckland FC","A-League Men",1,23,70],"101026":["Göztepe SK","Süper Lig",1,23,73],"33":["TSV 1860 München","3. Liga",3,29,70],"110740":["Reggiana","Serie B",2,29,74],"58":["Sporting Club Bastia","Ligue 2",2,27,70],"1477":["Jeonbuk Hyundai Motors","K League 1",1,38,74],"670":["Royal Charleroi Sporting Club","Pro League",1,25,73],"115892":["Al-Najma SC","Pro League",1,29,73],"100852":["CD Castellón","La Liga 2",2,28,71],"57":["AJ Auxerre","Ligue 1",1,28,76],"294":["ESTAC Troyes","Ligue 2",2,33,70],"110745":["Jagiellonia Białystok","Ekstraklasa",1,26,74],"1823":["AS Nancy Lorraine","Ligue 2",2,24,71],"111395":["Brisbane Roar","A-League Men",1,24,68],"526":["Rot-Weiss Essen","3. Liga",3,25,69],"1939":["Huddersfield Town","League One",3,28,70],"113040":["NorthEast United","Super League",1,32,70],"485":["Hannover 96","2. Bundesliga",2,28,73],"112427":["Western Sydney Wanderers","A-League Men",1,25,70],"272":["Odense Boldklub","Superliga",1,25,72],"822":["Vejle Boldklub","Superliga",1,32,69],"100805":["St. Mirren","Premiership",1,23,68],"112908":["Independiente del Valle","Serie A",1,28,72],"111633":["Mohammedan SC","Super League",1,18,66],"114615":["Mushuc Runa","Serie A",1,22,70],"2038":["Avellino","Serie B",2,33,72],"1961":["Cardiff City","League One",3,25,73],"110981":["Barcelona de Guayaquil","Serie A",1,25,73],"15040":["WSG Tirol","Bundesliga",1,29,70],"80":["Hearts","Premiership",1,32,73],"111713":["Club Atlético San Martín","Liga Profesional de Fútbol",1,30,70],"112199":["Sarpsborg 08 FF","Eliteserien",1,32,68],"1797":["Rotherham United","League One",3,30,67],"1894":["AD Ceuta FC","La Liga 2",2,27,69],"922":["Strømsgodset IF","Eliteserien",1,25,68],"112558":["Suwon FC","K League 1",1,38,70],"1798":["Milton Keynes Dons","League Two",4,27,69],"1746":["Empoli","Serie B",2,28,71],"1569":["Wisła Płock","Ekstraklasa",1,27,68],"695":["FC Dallas","Major League Soccer",1,31,76],"113302":["Bengaluru FC","Super League",1,24,69],"1819":["AS Saint-Étienne","Ligue 2",2,26,75],"688":["DC United","Major League Soccer",1,26,75],"114581":["Universidad Católica del Ecuador","Serie A",1,22,73],"112126":["IFK Värnamo","Allsvenskan",1,23,66],"1814":["Stade Lavallois Mayenne FC","Ligue 2",2,24,72],"143":["Exeter City","League One",3,32,66],"110816":["CFR Cluj","Liga I",1,31,75],"114611":["Academia Puerto Cabello","Primera Division",1,20,68],"1013":["San Lorenzo de Almagro","Liga Profesional de Fútbol",1,29,74],"1862":["FC Lausanne-Sport","Super League",1,25,71],"1932":["Barnsley","League One",3,26,68],"897":["FC Luzern","Super League",1,27,72],"110078":["Asociația Clubul Sportiv Petrolul 52","Liga I",1,34,69],"718":["Estrela da Amadora","Primeira Liga",1,31,71],"111083":["Korona Kielce","Ekstraklasa",1,26,68],"110075":["FCV Farul Constanța","Liga I",1,26,68],"1804":["Bradford City","League One",3,29,68],"1929":["Plymouth Argyle","League One",3,26,69],"580":["SV Elversberg","2. Bundesliga",2,27,71],"1937":["Notts County","League Two",4,27,65],"92":["Grimsby Town","League Two",4,27,63],"1891":["CD Nacional","Primeira Liga",1,30,75],"1931":["Stockport County","League One",3,27,69],"112115":["Gangwon FC","K League 1",1,38,70],"1913":["SC Heerenveen","Eredivisie",1,27,71],"980":["Daejeon Citizen","K League 1",1,36,74],"423":["St Patrick's Athletic FC","Premier Division",1,25,67],"149":["Lincoln City","League One",3,29,67],"319":["IFK Göteborg","Allsvenskan",1,22,69],"112555":["FC Anyang","K League 1",1,33,72],"171":["1. FC Nürnberg","2. Bundesliga",2,37,73],"110588":["1. FC Magdeburg","2. Bundesliga",2,36,72],"181":["Dundee United FC","Premiership",1,24,69],"1713":["FC Winterthur","Super League",1,30,68],"1914":["PEC Zwolle","Eredivisie",1,29,72],"110636":["Fortuna Düsseldorf","2. Bundesliga",2,27,72],"1958":["Leyton Orient","League One",3,26,69],"15009":["SC Rheindorf Altach","Bundesliga",1,26,70],"110752":["FC Botoşani","Liga I",1,30,69],"111822":["Wolfsberger AC","Bundesliga",1,28,72],"1867":["Córdoba CF","La Liga 2",2,26,72],"1802":["Gillingham","League Two",4,28,66],"131463":["AVS Futebol SAD","Primeira Liga",1,26,72],"82":["Kilmarnock","Premiership",1,26,67],"301":["Widzew Łódź","Ekstraklasa",1,29,72],"1930":["Northampton Town","League One",3,27,67],"110069":["CD Mirandés","La Liga 2",2,31,70],"112868":["Boston River","Primera División",1,22,69],"523":["1. FC Saarbrücken","3. Liga",3,28,69],"111433":["Mantova","Serie B",2,27,71],"1928":["Port Vale","League One",3,28,68],"1803":["Walsall","League Two",4,28,66],"100759":["FC Argeș","Liga I",1,27,65],"110750":["UTA Arad","Liga I",1,27,69],"111088":["Radomiak Radom","Ekstraklasa",1,25,69],"113257":["Odisha FC","Super League",1,18,69],"100634":["Heracles Almelo","Eredivisie",1,27,70],"110749":["Zagłębie Lubin","Ekstraklasa",1,31,68],"111766":["Wellington Phoenix","A-League Men",1,23,67],"111086":["Piast Gliwice","Ekstraklasa",1,26,69],"111328":["CD Palestino","Primera Division",1,28,72],"113147":["Virtus Entella","Serie B",2,27,70],"113298":["FC Goa","Super League",1,27,69],"2017":["TSV Hartberg","Bundesliga",1,30,68],"573":["Málaga CF","La Liga 2",2,30,74],"132305":["Dalian Yingbo","Super League",1,30,71],"132231":["RAAL La Louvière","Pro League",1,26,70],"113300":["Mumbai City FC","Super League",1,24,68],"110206":["GKS Katowice","Ekstraklasa",1,28,68],"115536":["Cerro Largo","Primera División",1,21,69],"79":["Falkirk","Premiership",1,30,68],"112124":["SS Juve Stabia","Serie B",2,28,69],"492":["SV Wehen Wiesbaden","3. Liga",3,30,70],"110720":["Blau-Weiß Linz","Bundesliga",1,29,71],"111276":["USL Dunkerque","Ligue 2",2,24,71],"110404":["CA Banfield","Liga Profesional de Fútbol",1,31,75],"1443":["Viborg FF","Superliga",1,24,69],"127":["Shrewsbury Town","League Two",4,21,66],"114147":["FC Hermannstadt","Liga I",1,26,68],"200":["Pescara","Serie B",2,29,71],"132375":["Gualberto Villarroel SJ","División de Fútbol Profesional",1,23,66],"15012":["Cultural Leonesa","La Liga 2",2,30,71],"112531":["Deportes Iquique","Primera Division",1,24,71],"111239":["FC Ingolstadt 04","3. Liga",3,24,68],"111273":["Red Star FC","Ligue 2",2,27,72],"110977":["Unión Española","Primera Division",1,24,71],"27":["FC Hansa Rostock","3. Liga",3,29,68],"543":["SSV Jahn Regensburg","3. Liga",3,27,68],"111657":["Frosinone","Serie B",2,29,69],"15005":["SV Zulte Waregem","Pro League",1,29,71],"180":["Dundee FC","Premiership",1,25,67],"111399":["Perth Glory","A-League Men",1,26,69],"1756":["Hamarkameratene","Eliteserien",1,30,67],"115494":["FC Annecy","Ligue 2",2,29,70],"110532":["SV Waldhof Mannheim","3. Liga",3,26,68],"112510":["Bruk-Bet Termalica Nieciecza","Ekstraklasa",1,25,68],"1826":["Alemannia Aachen","3. Liga",3,27,68],"1938":["Peterborough United","League One",3,33,66],"110176":["SSV Ulm 1846","3. Liga",3,27,69],"583":["1. FC Schweinfurt 05","3. Liga",3,31,65],"487":["VfL Osnabrück","3. Liga",3,26,68],"361":["Stevenage","League One",3,29,68],"1915":["FC Groningen","Eredivisie",1,30,70],"1971":["Excelsior","Eredivisie",1,29,68],"111091":["Lechia Gdańsk","Ekstraklasa",1,24,71],"113146":["Mohun Bagan Super Giant","Super League",1,26,71],"110991":["Carabobo FC","Primera Division",1,21,69],"1940":["Mansfield Town","League One",3,24,66],"110989":["Caracas FC","Primera Division",1,28,67],"113926":["Salford City","League Two",4,27,68],"2041":["Fredrikstad FK","Eliteserien",1,26,69],"114598":["Atlético Grau","Liga 1",1,23,69],"111011":["Cienciano","Liga 1",1,23,71],"110890":["Crawley Town","League Two",4,29,64],"110678":["TSV Havelse","3. Liga",3,29,65],"112258":["Gwangju FC","K League 1",1,32,70],"100638":["Telstar","Eredivisie",1,27,67],"83":["Motherwell FC","Premiership",1,30,68],"111659":["Rodez Aveyron Football","Ligue 2",2,28,69],"1825":["MSV Duisburg","3. Liga",3,28,66],"111398":["Newcastle Jets","A-League Men",1,24,69],"645":["FC Volendam","Eredivisie",1,29,70],"1447":["Sønderjyske Fodbold","Superliga",1,25,68],"111397":["Melbourne Victory","A-League Men",1,22,67],"1920":["Oldham Athletic","League Two",4,28,63],"111329":["Guaraní","División Profesional",1,27,70],"112516":["CD Tondela","Primeira Liga",1,28,73],"113458":["IK Sirius","Allsvenskan",1,26,69],"111705":["IF Brommapojkarna","Allsvenskan",1,33,67],"162":["FC Energie Cottbus","3. Liga",3,28,69],"503":["Dynamo Dresden","2. Bundesliga",2,25,70],"111396":["Central Coast Mariners","A-League Men",1,20,67],"112615":["Racing Club de Montevideo","Primera División",1,21,69],"1739":["Le Mans FC","Ligue 2",2,26,67],"110501":["SC Verl","3. Liga",3,26,68],"1935":["Colchester United","League Two",4,28,65],"1917":["Wigan Athletic","League One",3,30,68],"111594":["GAIS","Allsvenskan",1,25,69],"112764":["Bromley","League Two",4,26,65],"111139":["CF Montréal","Major League Soccer",1,25,69],"112259":["AFC Wimbledon","League One",3,26,65],"114545":["Metaloglobus București","Liga I",1,26,65],"114554":["FC Andorra","La Liga 2",2,25,70],"1934":["Swindon Town","League Two",4,26,66],"131795":["San Antonio Bulo Bulo","División de Fútbol Profesional",1,26,67],"111082":["Arka Gdynia","Ekstraklasa",1,27,66],"418":["Tromsø IL","Eliteserien",1,25,68],"112254":["Newport County","League Two",4,27,64],"110645":["Viktoria Köln","3. Liga",3,26,66],"1936":["Cheltenham Town","League Two",4,29,64],"135":["Barnet","League Two",4,29,65],"305":["Bohemian FC","Premier Division",1,23,65],"506":["FC Erzgebirge Aue","3. Liga",3,27,67],"112222":["Harrogate Town","League Two",4,26,64],"115472":["Deportivo Riestra","Liga Profesional de Fútbol",1,30,72],"131459":["Unirea Slobozia","Liga I",1,28,67],"113892":["Degerfors IF","Allsvenskan",1,25,68],"110072":["Oțelul Galați","Liga I",1,27,68],"114023":["Western United","A-League Men",1,18,66],"112667":["Nacional Potosí","División de Fútbol Profesional",1,18,66],"445":["Derry City","Premier Division",1,23,67],"112260":["Fleetwood Town","League Two",4,27,67],"1757":["Sandefjord Fotball","Eliteserien",1,29,67],"142":["Doncaster Rovers","League One",3,26,66],"111629":["East Bengal FC","Super League",1,38,65],"113459":["Kristiansund BK","Eliteserien",1,29,67],"114628":["Meizhou Hakka","Super League",1,27,68],"111006":["Sportivo Luqueño","División Profesional",1,25,68],"1924":["Chesterfield","League Two",4,27,65],"15048":["Tranmere Rovers","League Two",4,24,64],"15006":["Fredericia","Superliga",1,26,68],"110711":["Real Sociedad de Fútbol B","La Liga 2",2,27,65],"113299":["Kerala Blasters FC","Super League",1,27,68],"131491":["KFUM-Kameratene Oslo","Eliteserien",1,25,68],"381":["Barrow","League Two",4,25,66],"306":["Shamrock Rovers","Premier Division",1,26,66],"2015":["Grazer AK 1902","Bundesliga",1,26,67],"15015":["Burton Albion","League One",3,29,67],"1463":["FK Haugesund","Eliteserien",1,29,68],"834":["Shelbourne FC","Premier Division",1,27,67],"1962":["Bristol Rovers","League Two",4,26,66],"121":["Crewe Alexandra","League Two",4,31,65],"114546":["Csíkszereda Miercurea Ciuc","Liga I",1,29,66],"322":["Grasshopper Club Zürich","Super League",1,25,72],"110313":["Accrington Stanley","League Two",4,29,62],"321":["Halmstads BK","Allsvenskan",1,27,65],"1523":["Bryne FK","Eliteserien",1,25,66],"1870":["Östers IF","Allsvenskan",1,25,66],"132681":["United Tigers SC","Super League",1,18,64],"110697":["VfB Stuttgart II","3. Liga",3,29,63],"1572":["Drogheda United","Premier Division",1,27,62],"753":["Waterford FC","Premier Division",1,28,63],"113297":["Chennaiyin FC","Super League",1,18,65],"422":["Cork City","Premier Division",1,27,60],"563":["Sligo Rovers","Premier Division",1,26,61],"113301":["Hyderabad FC","Super League",1,25,61],"1571":["Galway United","Premier Division",1,24,62],"110685":["TSG 1899 Hoffenheim II","3. Liga",3,25,64],"111376":["US Boulogne Cote d'Opale","Ligue 2",2,27,64],"114168":["Jamshedpur FC","Super League",1,31,69],"115202":["Punjab FC","Super League",1,22,57]};
+const POPULAR     = {"243":[{"id":252371,"name":"J. Bellingham","full":"Jude Victor William Bellingham","pos":"MID","fifa_pos":["CAM","CM"],"ovr":90,"pot":94,"age":22,"nat":"England","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":5,"val":174500000,"foot":"Right","wf":4,"sm":4,"rep":5,"h":186,"pace":80,"sho":86,"pas":83,"dri":90,"def":78,"phy":85,"img":"https://cdn.sofifa.net/players/252/371/26_120.png","tags":"Dribbler, Playmaker , Clinical finisher, Complete midfielder"},{"id":239053,"name":"F. Valverde","full":"Federico Santiago Valverde Dipetta","pos":"MID","fifa_pos":["CM","CDM","RB"],"ovr":89,"pot":90,"age":26,"nat":"Uruguay","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":8,"val":120500000,"foot":"Right","wf":4,"sm":3,"rep":4,"h":182,"pace":88,"sho":84,"pas":84,"dri":84,"def":83,"phy":85,"img":"https://cdn.sofifa.net/players/239/053/26_120.png","tags":"Playmaker , Distance shooter, Tackling , Tactician , Complet"},{"id":231281,"name":"T. Alexander-Arnold","full":"Trent John Alexander-Arnold","pos":"DEF","fifa_pos":["RB","RM"],"ovr":86,"pot":87,"age":26,"nat":"England","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":12,"val":73000000,"foot":"Right","wf":4,"sm":3,"rep":4,"h":180,"pace":76,"sho":72,"pas":89,"dri":80,"def":80,"phy":74,"img":"https://cdn.sofifa.net/players/231/281/26_120.png","tags":"Crosser"},{"id":197445,"name":"D. Alaba","full":"David Olatukunbo Alaba","pos":"DEF","fifa_pos":["CB","LB","LM"],"ovr":82,"pot":82,"age":33,"nat":"Austria","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":4,"val":14500000,"foot":"Left","wf":4,"sm":3,"rep":3,"h":180,"pace":68,"sho":71,"pas":82,"dri":79,"def":82,"phy":75,"img":"https://cdn.sofifa.net/players/197/445/26_120.png","tags":""},{"id":231747,"name":"K. Mbappé","full":"Kylian Mbappé Lottin","pos":"ATT","fifa_pos":["ST","LW","LM"],"ovr":91,"pot":94,"age":26,"nat":"France","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":10,"val":173500000,"foot":"Right","wf":4,"sm":5,"rep":5,"h":182,"pace":97,"sho":90,"pas":81,"dri":92,"def":37,"phy":76,"img":"https://cdn.sofifa.net/players/231/747/26_120.png","tags":"Speedster, Dribbler, Distance shooter, Acrobat, Clinical fin"},{"id":248243,"name":"E. Camavinga","full":"Eduardo Celmi Camavinga","pos":"MID","fifa_pos":["CM","CDM","LB"],"ovr":83,"pot":90,"age":22,"nat":"France","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":6,"val":73500000,"foot":"Left","wf":3,"sm":4,"rep":3,"h":185,"pace":80,"sho":68,"pas":81,"dri":84,"def":78,"phy":80,"img":"https://cdn.sofifa.net/players/248/243/26_120.png","tags":""},{"id":204963,"name":"Carvajal","full":"Daniel Carvajal Ramos","pos":"DEF","fifa_pos":["RB","RM"],"ovr":85,"pot":85,"age":33,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":2,"val":28000000,"foot":"Right","wf":3,"sm":3,"rep":4,"h":173,"pace":80,"sho":58,"pas":79,"dri":81,"def":81,"phy":79,"img":"https://cdn.sofifa.net/players/204/963/26_120.png","tags":""},{"id":241637,"name":"A. Tchouaméni","full":"Aurélien Djani Tchouameni","pos":"MID","fifa_pos":["CDM","CM","CB"],"ovr":84,"pot":87,"age":25,"nat":"France","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":14,"val":50500000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":187,"pace":71,"sho":69,"pas":79,"dri":78,"def":81,"phy":82,"img":"https://cdn.sofifa.net/players/241/637/26_120.png","tags":""},{"id":228618,"name":"F. Mendy","full":"Ferland Sinna Mendy","pos":"DEF","fifa_pos":["LB","LM"],"ovr":81,"pot":81,"age":30,"nat":"France","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":23,"val":22000000,"foot":"Left","wf":5,"sm":4,"rep":3,"h":180,"pace":85,"sho":64,"pas":74,"dri":75,"def":78,"phy":84,"img":"https://cdn.sofifa.net/players/228/618/26_120.png","tags":""},{"id":268889,"name":"Álvaro Carreras","full":"Álvaro Fernández Carreras","pos":"DEF","fifa_pos":["LB","LM"],"ovr":80,"pot":88,"age":22,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":18,"val":45000000,"foot":"Left","wf":4,"sm":3,"rep":1,"h":186,"pace":85,"sho":65,"pas":75,"dri":79,"def":73,"phy":80,"img":"https://cdn.sofifa.net/players/268/889/26_120.png","tags":""},{"id":222509,"name":"Dani Ceballos","full":"Daniel Ceballos Fernández","pos":"MID","fifa_pos":["CM","CDM"],"ovr":81,"pot":81,"age":28,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":19,"val":25500000,"foot":"Right","wf":3,"sm":4,"rep":3,"h":179,"pace":61,"sho":71,"pas":80,"dri":82,"def":72,"phy":67,"img":"https://cdn.sofifa.net/players/222/509/26_120.png","tags":""},{"id":238794,"name":"Vini Jr.","full":"Vinicius José Paixão de Oliveira Junior","pos":"ATT","fifa_pos":["LW","ST","LM"],"ovr":89,"pot":92,"age":24,"nat":"Brazil","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":7,"val":141000000,"foot":"Right","wf":4,"sm":5,"rep":5,"h":176,"pace":95,"sho":84,"pas":81,"dri":91,"def":29,"phy":69,"img":"https://cdn.sofifa.net/players/238/794/26_120.png","tags":"Speedster, Dribbler, Acrobat, Clinical finisher, Complete fo"},{"id":243812,"name":"Rodrygo","full":"Rodrygo Silva de Goes","pos":"ATT","fifa_pos":["RW","ST","RM"],"ovr":85,"pot":90,"age":24,"nat":"Brazil","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":11,"val":81500000,"foot":"Right","wf":4,"sm":4,"rep":4,"h":174,"pace":88,"sho":80,"pas":79,"dri":87,"def":31,"phy":64,"img":"https://cdn.sofifa.net/players/243/812/26_120.png","tags":"Dribbler, Acrobat"},{"id":240130,"name":"Éder Militão","full":"Éder Gabriel Militão","pos":"DEF","fifa_pos":["CB"],"ovr":84,"pot":87,"age":27,"nat":"Brazil","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":3,"val":48000000,"foot":"Right","wf":3,"sm":2,"rep":3,"h":186,"pace":82,"sho":50,"pas":69,"dri":71,"def":85,"phy":82,"img":"https://cdn.sofifa.net/players/240/130/26_120.png","tags":""},{"id":205452,"name":"A. Rüdiger","full":"Antonio Rüdiger","pos":"DEF","fifa_pos":["CB"],"ovr":86,"pot":86,"age":32,"nat":"Germany","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":22,"val":44000000,"foot":"Right","wf":3,"sm":2,"rep":4,"h":190,"pace":79,"sho":55,"pas":72,"dri":70,"def":84,"phy":86,"img":"https://cdn.sofifa.net/players/205/452/26_120.png","tags":"Strength"},{"id":264309,"name":"A. Güler","full":"Arda Güler","pos":"MID","fifa_pos":["RM","CAM","RW"],"ovr":81,"pot":89,"age":20,"nat":"Türkiye","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":15,"val":56500000,"foot":"Left","wf":3,"sm":4,"rep":1,"h":175,"pace":70,"sho":77,"pas":83,"dri":83,"def":52,"phy":50,"img":"https://cdn.sofifa.net/players/264/309/26_120.png","tags":""},{"id":278349,"name":"D. Huijsen","full":"Dean Donny Huijsen","pos":"DEF","fifa_pos":["CB"],"ovr":82,"pot":89,"age":20,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":24,"val":56000000,"foot":"Right","wf":5,"sm":2,"rep":3,"h":197,"pace":71,"sho":55,"pas":73,"dri":74,"def":82,"phy":76,"img":"https://cdn.sofifa.net/players/278/349/26_120.png","tags":"Aerial threat"},{"id":279173,"name":"F. Mastantuono","full":"Franco Mastantuono","pos":"MID","fifa_pos":["CAM","RW","ST"],"ovr":77,"pot":88,"age":17,"nat":"Argentina","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":30,"val":22000000,"foot":"Left","wf":3,"sm":3,"rep":1,"h":177,"pace":74,"sho":71,"pas":75,"dri":80,"def":50,"phy":63,"img":"https://cdn.sofifa.net/players/279/173/26_120.png","tags":""},{"id":246606,"name":"Fran García","full":"Francisco José García Torres","pos":"DEF","fifa_pos":["LB","LM"],"ovr":79,"pot":82,"age":25,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":20,"val":21500000,"foot":"Left","wf":3,"sm":3,"rep":2,"h":169,"pace":89,"sho":50,"pas":70,"dri":78,"def":72,"phy":71,"img":"https://cdn.sofifa.net/players/246/606/26_120.png","tags":""},{"id":272505,"name":"Endrick","full":"Endrick Felipe Moreira de Sousa","pos":"ATT","fifa_pos":["ST","RW"],"ovr":77,"pot":91,"age":18,"nat":"Brazil","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":9,"val":24500000,"foot":"Left","wf":3,"sm":4,"rep":1,"h":173,"pace":87,"sho":77,"pas":62,"dri":78,"def":30,"phy":68,"img":"https://cdn.sofifa.net/players/272/505/26_120.png","tags":""},{"id":231410,"name":"Brahim","full":"Brahim Abdelkader Díazابراهيم عبد القادر دياز","pos":"MID","fifa_pos":["RM","LM","CAM","RW"],"ovr":82,"pot":83,"age":25,"nat":"Morocco","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":21,"val":36500000,"foot":"Right","wf":5,"sm":4,"rep":3,"h":170,"pace":82,"sho":74,"pas":79,"dri":85,"def":31,"phy":58,"img":"https://cdn.sofifa.net/players/231/410/26_120.png","tags":"Acrobat"},{"id":278399,"name":"Gonzalo","full":"Gonzalo García Torres","pos":"ATT","fifa_pos":["ST"],"ovr":69,"pot":82,"age":21,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":16,"val":3500000,"foot":"Right","wf":4,"sm":3,"rep":1,"h":182,"pace":68,"sho":69,"pas":61,"dri":68,"def":45,"phy":69,"img":"https://cdn.sofifa.net/players/278/399/26_120.png","tags":""},{"id":75605,"name":"Asencio","full":"Raúl Asencio del Rosario","pos":"DEF","fifa_pos":["CB","RB","RM"],"ovr":77,"pot":86,"age":22,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":17,"val":22000000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":184,"pace":74,"sho":37,"pas":55,"dri":71,"def":78,"phy":76,"img":"https://cdn.sofifa.net/players/075/605/26_120.png","tags":""},{"id":75572,"name":"Fortea","full":"Jesús Fortea Tejedo","pos":"DEF","fifa_pos":["RB","RM"],"ovr":60,"pot":76,"age":18,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":32,"val":600000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":174,"pace":64,"sho":33,"pas":56,"dri":62,"def":56,"phy":65,"img":"https://cdn.sofifa.net/players/075/572/26_120.png","tags":""},{"id":80807,"name":"Thiago Pitarch","full":"Thiago Pitarch Pinar","pos":"MID","fifa_pos":["CM"],"ovr":60,"pot":81,"age":17,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":45,"val":775000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":179,"pace":65,"sho":36,"pas":59,"dri":58,"def":49,"phy":59,"img":"https://cdn.sofifa.net/players/080/807/26_120.png","tags":""},{"id":75747,"name":"Diego Aguado","full":"Diego Aguado Facio","pos":"DEF","fifa_pos":["CB","LB"],"ovr":59,"pot":75,"age":18,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":27,"val":550000,"foot":"Left","wf":3,"sm":2,"rep":1,"h":180,"pace":66,"sho":30,"pas":57,"dri":47,"def":61,"phy":56,"img":"https://cdn.sofifa.net/players/075/747/26_120.png","tags":""},{"id":192119,"name":"T. Courtois","full":"Thibaut Nicolas Marc Courtois","pos":"GK","fifa_pos":["GK"],"ovr":89,"pot":89,"age":33,"nat":"Belgium","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":1,"val":33500000,"foot":"Left","wf":3,"sm":1,"rep":5,"h":200,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/192/119/26_120.png","tags":""},{"id":243952,"name":"A. Lunin","full":"Andriy LuninЛунін Андрій Олексійович","pos":"GK","fifa_pos":["GK"],"ovr":81,"pot":86,"age":26,"nat":"Ukraine","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":13,"val":29500000,"foot":"Right","wf":3,"sm":1,"rep":3,"h":191,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/243/952/26_120.png","tags":""},{"id":272503,"name":"Sergio Mestre","full":"Sergio Mestre Sánchez","pos":"GK","fifa_pos":["GK"],"ovr":60,"pot":77,"age":20,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":43,"val":575000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":193,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/272/503/26_120.png","tags":""},{"id":278394,"name":"Fran González","full":"Francisco Javier González Pérez","pos":"GK","fifa_pos":["GK"],"ovr":63,"pot":80,"age":20,"nat":"Spain","club":"Real Madrid","cid":243,"league":"La Liga","lvl":1,"jersey":26,"val":1100000,"foot":"Right","wf":3,"sm":1,"rep":1,"h":199,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/278/394/26_120.png","tags":""}],"21":[{"id":212622,"name":"J. Kimmich","full":"Joshua Walter Kimmich","pos":"MID","fifa_pos":["CDM","RB","CM"],"ovr":89,"pot":89,"age":30,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":6,"val":86000000,"foot":"Right","wf":4,"sm":3,"rep":4,"h":177,"pace":72,"sho":74,"pas":89,"dri":84,"def":83,"phy":79,"img":"https://cdn.sofifa.net/players/212/622/26_120.png","tags":"Playmaker , Crosser, Tackling , Complete midfielder"},{"id":209658,"name":"L. Goretzka","full":"Leon Christoph Goretzka","pos":"MID","fifa_pos":["CM","CDM","CAM"],"ovr":82,"pot":82,"age":30,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":8,"val":29000000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":189,"pace":77,"sho":78,"pas":80,"dri":80,"def":80,"phy":82,"img":"https://cdn.sofifa.net/players/209/658/26_120.png","tags":""},{"id":202126,"name":"H. Kane","full":"Harry Edward Kane","pos":"ATT","fifa_pos":["ST"],"ovr":89,"pot":89,"age":31,"nat":"England","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":9,"val":87000000,"foot":"Right","wf":4,"sm":3,"rep":5,"h":188,"pace":64,"sho":92,"pas":83,"dri":82,"def":48,"phy":82,"img":"https://cdn.sofifa.net/players/202/126/26_120.png","tags":"Aerial threat, Distance shooter, Strength, Clinical finisher"},{"id":256790,"name":"J. Musiala","full":"Jamal Musiala","pos":"MID","fifa_pos":["CAM","LM","CM","ST"],"ovr":88,"pot":92,"age":22,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":10,"val":133500000,"foot":"Right","wf":4,"sm":5,"rep":4,"h":184,"pace":80,"sho":82,"pas":80,"dri":90,"def":66,"phy":65,"img":"https://cdn.sofifa.net/players/256/790/26_120.png","tags":"Dribbler, Acrobat, Clinical finisher, Complete forward"},{"id":234396,"name":"A. Davies","full":"Alphonso Boyle Davies","pos":"DEF","fifa_pos":["LB","LM"],"ovr":84,"pot":87,"age":24,"nat":"Canada","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":19,"val":53500000,"foot":"Left","wf":3,"sm":4,"rep":3,"h":185,"pace":94,"sho":66,"pas":78,"dri":85,"def":74,"phy":76,"img":"https://cdn.sofifa.net/players/234/396/26_120.png","tags":"Speedster"},{"id":209889,"name":"R. Guerreiro","full":"Raphaël Adelino José Guerreiro","pos":"DEF","fifa_pos":["LB","CM","RB","LM"],"ovr":80,"pot":80,"age":31,"nat":"Portugal","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":22,"val":15500000,"foot":"Left","wf":2,"sm":4,"rep":3,"h":170,"pace":69,"sho":78,"pas":85,"dri":88,"def":74,"phy":54,"img":"https://cdn.sofifa.net/players/209/889/26_120.png","tags":"Dribbler, Playmaker , Acrobat, Complete midfielder"},{"id":225375,"name":"K. Laimer","full":"Konrad Laimer","pos":"DEF","fifa_pos":["RB","CDM","CM","RM"],"ovr":82,"pot":82,"age":28,"nat":"Austria","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":27,"val":27500000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":180,"pace":82,"sho":69,"pas":76,"dri":75,"def":81,"phy":76,"img":"https://cdn.sofifa.net/players/225/375/26_120.png","tags":""},{"id":241084,"name":"L. Díaz","full":"Luis Fernando Díaz Marulanda","pos":"MID","fifa_pos":["LM","LW","ST"],"ovr":85,"pot":85,"age":28,"nat":"Colombia","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":14,"val":54500000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":180,"pace":88,"sho":81,"pas":76,"dri":87,"def":45,"phy":75,"img":"https://cdn.sofifa.net/players/241/084/26_120.png","tags":"Dribbler, Acrobat"},{"id":247827,"name":"M. Olise","full":"Michael Akpovie Olise","pos":"MID","fifa_pos":["RM","RW"],"ovr":86,"pot":88,"age":23,"nat":"France","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":17,"val":88000000,"foot":"Left","wf":2,"sm":4,"rep":3,"h":184,"pace":78,"sho":80,"pas":84,"dri":87,"def":50,"phy":66,"img":"https://cdn.sofifa.net/players/247/827/26_120.png","tags":"Dribbler, Acrobat"},{"id":275298,"name":"A. Pavlović","full":"Aleksandar Pavlović","pos":"MID","fifa_pos":["CDM","CM"],"ovr":79,"pot":87,"age":21,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":45,"val":37000000,"foot":"Right","wf":4,"sm":3,"rep":1,"h":188,"pace":62,"sho":64,"pas":79,"dri":78,"def":76,"phy":71,"img":"https://cdn.sofifa.net/players/275/298/26_120.png","tags":""},{"id":206113,"name":"S. Gnabry","full":"Serge David Gnabry","pos":"MID","fifa_pos":["LM","RM","ST","CAM"],"ovr":82,"pot":82,"age":29,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":7,"val":30000000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":176,"pace":79,"sho":83,"pas":78,"dri":84,"def":43,"phy":66,"img":"https://cdn.sofifa.net/players/206/113/26_120.png","tags":""},{"id":234205,"name":"H. Ito","full":"Hiroki Ito伊藤 洋輝","pos":"DEF","fifa_pos":["CB","LB","LM"],"ovr":78,"pot":82,"age":26,"nat":"Japan","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":21,"val":17500000,"foot":"Left","wf":3,"sm":2,"rep":2,"h":188,"pace":74,"sho":57,"pas":71,"dri":72,"def":80,"phy":72,"img":"https://cdn.sofifa.net/players/234/205/26_120.png","tags":""},{"id":259197,"name":"N. Jackson","full":"Nicolas Jackson","pos":"ATT","fifa_pos":["ST"],"ovr":80,"pot":84,"age":24,"nat":"Senegal","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":11,"val":30500000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":187,"pace":82,"sho":77,"pas":69,"dri":79,"def":40,"phy":77,"img":"https://cdn.sofifa.net/players/259/197/26_120.png","tags":""},{"id":248266,"name":"S. Boey","full":"Sacha Boey","pos":"DEF","fifa_pos":["RB"],"ovr":77,"pot":80,"age":24,"nat":"France","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":23,"val":13500000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":178,"pace":71,"sho":55,"pas":66,"dri":75,"def":76,"phy":77,"img":"https://cdn.sofifa.net/players/248/266/26_120.png","tags":""},{"id":263765,"name":"T. Bischof","full":"Tom Bischof","pos":"MID","fifa_pos":["CM","CDM","RM","CAM"],"ovr":76,"pot":86,"age":20,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":20,"val":16500000,"foot":"Left","wf":3,"sm":3,"rep":1,"h":176,"pace":58,"sho":67,"pas":79,"dri":79,"def":60,"phy":60,"img":"https://cdn.sofifa.net/players/263/765/26_120.png","tags":""},{"id":229558,"name":"D. Upamecano","full":"Dayotchanculle Oswald Upamecano","pos":"DEF","fifa_pos":["CB"],"ovr":85,"pot":88,"age":26,"nat":"France","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":2,"val":62500000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":186,"pace":77,"sho":45,"pas":64,"dri":73,"def":84,"phy":84,"img":"https://cdn.sofifa.net/players/229/558/26_120.png","tags":"Tactician , Strength"},{"id":250955,"name":"J. Stanišić","full":"Josip Stanišić","pos":"DEF","fifa_pos":["CB","RB","LB","RM"],"ovr":78,"pot":82,"age":25,"nat":"Croatia","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":44,"val":17500000,"foot":"Right","wf":4,"sm":2,"rep":1,"h":187,"pace":73,"sho":44,"pas":65,"dri":69,"def":79,"phy":74,"img":"https://cdn.sofifa.net/players/250/955/26_120.png","tags":""},{"id":213331,"name":"J. Tah","full":"Jonathan Glao Tah","pos":"DEF","fifa_pos":["CB"],"ovr":87,"pot":87,"age":29,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":4,"val":66500000,"foot":"Right","wf":3,"sm":2,"rep":4,"h":195,"pace":63,"sho":38,"pas":60,"dri":63,"def":87,"phy":86,"img":"https://cdn.sofifa.net/players/213/331/26_120.png","tags":"Aerial threat, Strength"},{"id":237086,"name":"Kim Min Jae","full":"Min-jae Kim김민재 金敏在","pos":"DEF","fifa_pos":["CB"],"ovr":82,"pot":83,"age":28,"nat":"Korea Republic","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":3,"val":29000000,"foot":"Right","wf":3,"sm":2,"rep":3,"h":190,"pace":73,"sho":33,"pas":58,"dri":63,"def":83,"phy":84,"img":"https://cdn.sofifa.net/players/237/086/26_120.png","tags":"Tactician"},{"id":78063,"name":"L. Karl","full":"Lennart Karl","pos":"MID","fifa_pos":["CAM","RM","CM"],"ovr":63,"pot":86,"age":17,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":46,"val":1500000,"foot":"Left","wf":3,"sm":4,"rep":1,"h":168,"pace":69,"sho":58,"pas":60,"dri":69,"def":34,"phy":37,"img":"https://cdn.sofifa.net/players/078/063/26_120.png","tags":""},{"id":79317,"name":"David Santos Daiber","full":"David Michael Santos Daiber","pos":"MID","fifa_pos":["CDM","CM"],"ovr":59,"pot":79,"age":18,"nat":"Portugal","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":47,"val":600000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":179,"pace":61,"sho":49,"pas":58,"dri":59,"def":58,"phy":43,"img":"https://cdn.sofifa.net/players/079/317/26_120.png","tags":""},{"id":167495,"name":"M. Neuer","full":"Manuel Peter Neuer","pos":"GK","fifa_pos":["GK"],"ovr":84,"pot":84,"age":39,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":1,"val":4700000,"foot":"Right","wf":4,"sm":1,"rep":3,"h":193,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/167/495/26_120.png","tags":""},{"id":186569,"name":"S. Ulreich","full":"Sven Ulreich","pos":"GK","fifa_pos":["GK"],"ovr":73,"pot":73,"age":36,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":26,"val":350000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":192,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/186/569/26_120.png","tags":""},{"id":263887,"name":"J. Urbig","full":"Jonas Kurt Urbig","pos":"GK","fifa_pos":["GK"],"ovr":74,"pot":84,"age":21,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":40,"val":8000000,"foot":"Right","wf":4,"sm":1,"rep":1,"h":189,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/263/887/26_120.png","tags":""},{"id":81240,"name":"J. Bärtl","full":"Jannis Bärtl","pos":"GK","fifa_pos":["GK"],"ovr":58,"pot":73,"age":19,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":35,"val":425000,"foot":"Right","wf":3,"sm":1,"rep":1,"h":185,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/081/240/26_120.png","tags":""},{"id":76337,"name":"L. Klanac","full":"Leon Klanac","pos":"GK","fifa_pos":["GK"],"ovr":56,"pot":75,"age":18,"nat":"Germany","club":"FC Bayern München","cid":21,"league":"Bundesliga","lvl":1,"jersey":48,"val":325000,"foot":"Right","wf":3,"sm":1,"rep":1,"h":185,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/076/337/26_120.png","tags":""}],"9":[{"id":239837,"name":"A. Mac Allister","full":"Alexis Mac Allister","pos":"MID","fifa_pos":["CM","CDM"],"ovr":87,"pot":88,"age":26,"nat":"Argentina","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":10,"val":93000000,"foot":"Right","wf":3,"sm":3,"rep":4,"h":176,"pace":66,"sho":82,"pas":85,"dri":85,"def":78,"phy":76,"img":"https://cdn.sofifa.net/players/239/837/26_120.png","tags":"Playmaker"},{"id":209331,"name":"M. Salah","full":"Mohamed Salah Hamed Ghalyمحمد صلاح","pos":"MID","fifa_pos":["RM","RW"],"ovr":91,"pot":91,"age":33,"nat":"Egypt","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":11,"val":82000000,"foot":"Left","wf":3,"sm":4,"rep":5,"h":175,"pace":89,"sho":88,"pas":86,"dri":90,"def":45,"phy":76,"img":"https://cdn.sofifa.net/players/209/331/26_120.png","tags":"Dribbler, Crosser, Acrobat"},{"id":236772,"name":"D. Szoboszlai","full":"Dominik Szoboszlai","pos":"MID","fifa_pos":["CAM","CM"],"ovr":83,"pot":86,"age":24,"nat":"Hungary","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":8,"val":49500000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":186,"pace":79,"sho":82,"pas":84,"dri":82,"def":67,"phy":76,"img":"https://cdn.sofifa.net/players/236/772/26_120.png","tags":""},{"id":246104,"name":"R. Gravenberch","full":"Ryan Jiro Gravenberch","pos":"MID","fifa_pos":["CDM","CM"],"ovr":85,"pot":88,"age":23,"nat":"Netherlands","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":38,"val":66500000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":190,"pace":76,"sho":76,"pas":81,"dri":85,"def":81,"phy":81,"img":"https://cdn.sofifa.net/players/246/104/26_120.png","tags":"Tactician"},{"id":256630,"name":"F. Wirtz","full":"Florian Richard Wirtz","pos":"MID","fifa_pos":["CAM","ST","CM"],"ovr":89,"pot":93,"age":22,"nat":"Germany","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":7,"val":150500000,"foot":"Right","wf":4,"sm":4,"rep":5,"h":177,"pace":80,"sho":82,"pas":88,"dri":90,"def":54,"phy":67,"img":"https://cdn.sofifa.net/players/256/630/26_120.png","tags":"Dribbler, Playmaker , Crosser, Acrobat, Complete midfielder"},{"id":260908,"name":"M. Kerkez","full":"Milos KerkezМилош Керкез","pos":"DEF","fifa_pos":["LB","LM"],"ovr":82,"pot":86,"age":21,"nat":"Hungary","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":6,"val":41500000,"foot":"Left","wf":3,"sm":3,"rep":3,"h":180,"pace":87,"sho":59,"pas":75,"dri":78,"def":77,"phy":80,"img":"https://cdn.sofifa.net/players/260/908/26_120.png","tags":""},{"id":242516,"name":"C. Gakpo","full":"Cody Mathès Gakpo","pos":"MID","fifa_pos":["LM","LW"],"ovr":84,"pot":85,"age":26,"nat":"Netherlands","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":18,"val":49500000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":189,"pace":83,"sho":82,"pas":80,"dri":83,"def":47,"phy":74,"img":"https://cdn.sofifa.net/players/242/516/26_120.png","tags":""},{"id":216267,"name":"A. Robertson","full":"Andrew Henry Robertson","pos":"DEF","fifa_pos":["LB","LM"],"ovr":82,"pot":82,"age":31,"nat":"Scotland","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":26,"val":22000000,"foot":"Left","wf":2,"sm":3,"rep":3,"h":178,"pace":74,"sho":61,"pas":80,"dri":77,"def":79,"phy":75,"img":"https://cdn.sofifa.net/players/216/267/26_120.png","tags":"Crosser"},{"id":203376,"name":"V. van Dijk","full":"Virgil van Dijk","pos":"DEF","fifa_pos":["CB"],"ovr":90,"pot":90,"age":33,"nat":"Netherlands","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":4,"val":57000000,"foot":"Right","wf":3,"sm":2,"rep":5,"h":193,"pace":73,"sho":60,"pas":72,"dri":72,"def":90,"phy":87,"img":"https://cdn.sofifa.net/players/203/376/26_120.png","tags":"Tackling , Tactician , Strength, Complete defender"},{"id":242434,"name":"C. Jones","full":"Curtis Jones","pos":"MID","fifa_pos":["CAM","CM","CDM"],"ovr":80,"pot":83,"age":24,"nat":"England","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":17,"val":29000000,"foot":"Right","wf":4,"sm":4,"rep":1,"h":185,"pace":74,"sho":74,"pas":76,"dri":82,"def":72,"phy":76,"img":"https://cdn.sofifa.net/players/242/434/26_120.png","tags":""},{"id":253149,"name":"J. Frimpong","full":"Jeremie Agyekum Frimpong","pos":"DEF","fifa_pos":["RB","RM","RW"],"ovr":83,"pot":85,"age":24,"nat":"Netherlands","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":30,"val":43500000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":172,"pace":94,"sho":62,"pas":74,"dri":84,"def":72,"phy":63,"img":"https://cdn.sofifa.net/players/253/149/26_120.png","tags":"Speedster, Acrobat"},{"id":233731,"name":"A. Isak","full":"Alexander Isak","pos":"ATT","fifa_pos":["ST"],"ovr":88,"pot":89,"age":25,"nat":"Sweden","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":9,"val":111000000,"foot":"Right","wf":4,"sm":4,"rep":4,"h":192,"pace":83,"sho":89,"pas":73,"dri":85,"def":39,"phy":76,"img":"https://cdn.sofifa.net/players/233/731/26_120.png","tags":"Distance shooter, Clinical finisher"},{"id":235805,"name":"F. Chiesa","full":"Federico Chiesa","pos":"MID","fifa_pos":["RM","LM","ST","RW"],"ovr":81,"pot":81,"age":27,"nat":"Italy","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":14,"val":27500000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":175,"pace":87,"sho":80,"pas":75,"dri":83,"def":44,"phy":68,"img":"https://cdn.sofifa.net/players/235/805/26_120.png","tags":"Acrobat"},{"id":232487,"name":"W. Endo","full":"Wataru Endo遠藤 航","pos":"MID","fifa_pos":["CDM","CM"],"ovr":79,"pot":79,"age":32,"nat":"Japan","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":3,"val":11500000,"foot":"Right","wf":4,"sm":3,"rep":2,"h":178,"pace":58,"sho":68,"pas":71,"dri":77,"def":79,"phy":73,"img":"https://cdn.sofifa.net/players/232/487/26_120.png","tags":""},{"id":264298,"name":"C. Bradley","full":"Conor Bradley","pos":"DEF","fifa_pos":["RB","RM"],"ovr":78,"pot":84,"age":21,"nat":"Northern Ireland","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":12,"val":21000000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":181,"pace":80,"sho":61,"pas":70,"dri":75,"def":75,"phy":74,"img":"https://cdn.sofifa.net/players/264/298/26_120.png","tags":""},{"id":257289,"name":"H. Ekitiké","full":"Hugo Ekitiké","pos":"ATT","fifa_pos":["ST","CAM"],"ovr":83,"pot":88,"age":23,"nat":"France","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":22,"val":55500000,"foot":"Right","wf":3,"sm":4,"rep":3,"h":189,"pace":86,"sho":78,"pas":69,"dri":85,"def":33,"phy":73,"img":"https://cdn.sofifa.net/players/257/289/26_120.png","tags":""},{"id":271975,"name":"Stefan Bajcetic","full":"Stefan Bajčetić Maquieira","pos":"MID","fifa_pos":["CDM","CM","CB"],"ovr":73,"pot":83,"age":20,"nat":"Spain","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":43,"val":6500000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":185,"pace":74,"sho":52,"pas":67,"dri":73,"def":71,"phy":71,"img":"https://cdn.sofifa.net/players/271/975/26_120.png","tags":""},{"id":237678,"name":"I. Konaté","full":"Ibrahima Konaté","pos":"DEF","fifa_pos":["CB"],"ovr":86,"pot":87,"age":26,"nat":"France","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":5,"val":70000000,"foot":"Right","wf":3,"sm":3,"rep":4,"h":194,"pace":77,"sho":34,"pas":63,"dri":69,"def":86,"phy":85,"img":"https://cdn.sofifa.net/players/237/678/26_120.png","tags":"Aerial threat, Tackling , Strength"},{"id":225100,"name":"J. Gomez","full":"Joseph Dave Gomez","pos":"DEF","fifa_pos":["CB","RB","LB","RM"],"ovr":79,"pot":80,"age":28,"nat":"England","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":2,"val":16500000,"foot":"Right","wf":3,"sm":3,"rep":2,"h":188,"pace":74,"sho":29,"pas":70,"dri":71,"def":79,"phy":73,"img":"https://cdn.sofifa.net/players/225/100/26_120.png","tags":""},{"id":80376,"name":"R. Ngumoha","full":"Rio Bass Ray Ngumoha Adigun","pos":"MID","fifa_pos":["LM","LW"],"ovr":68,"pot":88,"age":16,"nat":"England","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":73,"val":3300000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":170,"pace":90,"sho":64,"pas":59,"dri":72,"def":35,"phy":53,"img":"https://cdn.sofifa.net/players/080/376/26_120.png","tags":"Speedster"},{"id":252897,"name":"C. Ramsay","full":"Calvin William Ramsay","pos":"DEF","fifa_pos":["RB","RM"],"ovr":65,"pot":75,"age":21,"nat":"Scotland","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":47,"val":1500000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":177,"pace":76,"sho":46,"pas":61,"dri":64,"def":58,"phy":64,"img":"https://cdn.sofifa.net/players/252/897/26_120.png","tags":""},{"id":279128,"name":"T. Nyoni","full":"Treymaurice Nyoni","pos":"MID","fifa_pos":["CM","CAM"],"ovr":64,"pot":84,"age":18,"nat":"England","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":42,"val":1600000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":180,"pace":67,"sho":54,"pas":61,"dri":69,"def":52,"phy":52,"img":"https://cdn.sofifa.net/players/279/128/26_120.png","tags":""},{"id":212831,"name":"Alisson","full":"Alisson Ramsés Becker","pos":"GK","fifa_pos":["GK"],"ovr":89,"pot":89,"age":32,"nat":"Brazil","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":1,"val":51000000,"foot":"Right","wf":3,"sm":1,"rep":5,"h":193,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/212/831/26_120.png","tags":""},{"id":247601,"name":"R. Williams","full":"Rhys Williams","pos":"DEF","fifa_pos":["CB"],"ovr":61,"pot":67,"age":24,"nat":"England","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":46,"val":475000,"foot":"Right","wf":2,"sm":2,"rep":1,"h":195,"pace":64,"sho":35,"pas":48,"dri":52,"def":60,"phy":65,"img":"https://cdn.sofifa.net/players/247/601/26_120.png","tags":""},{"id":70824,"name":"G. Leoni","full":"Giovanni Leoni","pos":"DEF","fifa_pos":["CB"],"ovr":69,"pot":82,"age":18,"nat":"Italy","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":15,"val":3000000,"foot":"Right","wf":4,"sm":2,"rep":1,"h":196,"pace":53,"sho":27,"pas":42,"dri":52,"def":71,"phy":68,"img":"https://cdn.sofifa.net/players/070/824/26_120.png","tags":""},{"id":222514,"name":"F. Woodman","full":"Frederick John Woodman","pos":"GK","fifa_pos":["GK"],"ovr":71,"pot":71,"age":28,"nat":"England","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":28,"val":1300000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":188,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/222/514/26_120.png","tags":""},{"id":262621,"name":"G. Mamardashvili","full":"Giorgi Mamardashviliგიორგი მამარდაშვილი","pos":"GK","fifa_pos":["GK"],"ovr":84,"pot":87,"age":24,"nat":"Georgia","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":25,"val":45000000,"foot":"Left","wf":3,"sm":1,"rep":3,"h":199,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/262/621/26_120.png","tags":""},{"id":79922,"name":"Á. Pécsi","full":"Ármin Pécsi","pos":"GK","fifa_pos":["GK"],"ovr":64,"pot":79,"age":20,"nat":"Hungary","club":"Liverpool","cid":9,"league":"Premier League","lvl":1,"jersey":41,"val":1200000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":190,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/079/922/26_120.png","tags":""}],"73":[{"id":235212,"name":"A. Hakimi","full":"Achraf Hakimi Mouhأشرف حكيمي","pos":"DEF","fifa_pos":["RB","RM"],"ovr":89,"pot":90,"age":26,"nat":"Morocco","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":2,"val":111000000,"foot":"Right","wf":4,"sm":4,"rep":4,"h":181,"pace":92,"sho":79,"pas":82,"dri":83,"def":82,"phy":79,"img":"https://cdn.sofifa.net/players/235/212/26_120.png","tags":"Speedster"},{"id":255253,"name":"Vitinha","full":"Vítor Machado Ferreira","pos":"MID","fifa_pos":["CM","CDM","CAM"],"ovr":89,"pot":91,"age":25,"nat":"Portugal","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":17,"val":128500000,"foot":"Right","wf":3,"sm":4,"rep":4,"h":172,"pace":72,"sho":80,"pas":86,"dri":90,"def":75,"phy":70,"img":"https://cdn.sofifa.net/players/255/253/26_120.png","tags":"Dribbler, Playmaker , Acrobat, Complete midfielder"},{"id":231443,"name":"O. Dembélé","full":"Masour Ousmane Dembélé","pos":"ATT","fifa_pos":["ST","RW","CAM"],"ovr":90,"pot":90,"age":28,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":10,"val":122500000,"foot":"Left","wf":5,"sm":5,"rep":5,"h":178,"pace":91,"sho":88,"pas":83,"dri":93,"def":50,"phy":69,"img":"https://cdn.sofifa.net/players/231/443/26_120.png","tags":"Speedster, Dribbler, Distance shooter, Acrobat, Clinical fin"},{"id":272834,"name":"João Neves","full":"João Pedro Gonçalves Neves","pos":"MID","fifa_pos":["CM","CDM"],"ovr":85,"pot":90,"age":20,"nat":"Portugal","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":87,"val":79500000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":174,"pace":74,"sho":71,"pas":80,"dri":84,"def":82,"phy":83,"img":"https://cdn.sofifa.net/players/272/834/26_120.png","tags":""},{"id":247635,"name":"K. Kvaratskhelia","full":"Khvicha Kvaratskheliaხვიჩა კვარაცხელია","pos":"ATT","fifa_pos":["LW","RW","LM"],"ovr":87,"pot":90,"age":24,"nat":"Georgia","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":7,"val":109000000,"foot":"Right","wf":5,"sm":5,"rep":3,"h":183,"pace":86,"sho":80,"pas":83,"dri":88,"def":58,"phy":78,"img":"https://cdn.sofifa.net/players/247/635/26_120.png","tags":"Dribbler, Acrobat"},{"id":252145,"name":"Nuno Mendes","full":"Nuno Alexandre Tavares Mendes","pos":"DEF","fifa_pos":["LB","LM"],"ovr":86,"pot":89,"age":23,"nat":"Portugal","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":25,"val":86000000,"foot":"Left","wf":4,"sm":3,"rep":3,"h":180,"pace":95,"sho":65,"pas":76,"dri":82,"def":80,"phy":77,"img":"https://cdn.sofifa.net/players/252/145/26_120.png","tags":"Speedster, Acrobat"},{"id":226271,"name":"Fabián Ruiz","full":"Fabián Ruiz Peña","pos":"MID","fifa_pos":["CM","CDM"],"ovr":85,"pot":85,"age":29,"nat":"Spain","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":8,"val":52500000,"foot":"Left","wf":3,"sm":3,"rep":3,"h":189,"pace":61,"sho":77,"pas":80,"dri":81,"def":75,"phy":72,"img":"https://cdn.sofifa.net/players/226/271/26_120.png","tags":""},{"id":271421,"name":"D. Doué","full":"Désiré Doué","pos":"ATT","fifa_pos":["RW","LW","CM","RM"],"ovr":85,"pot":91,"age":20,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":14,"val":83500000,"foot":"Right","wf":4,"sm":5,"rep":3,"h":181,"pace":83,"sho":80,"pas":77,"dri":90,"def":55,"phy":74,"img":"https://cdn.sofifa.net/players/271/421/26_120.png","tags":"Dribbler, Acrobat"},{"id":270673,"name":"W. Zaïre-Emery","full":"Warren Zaïre-Emery","pos":"MID","fifa_pos":["CM","CDM","CAM"],"ovr":80,"pot":87,"age":19,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":33,"val":41000000,"foot":"Right","wf":4,"sm":3,"rep":1,"h":178,"pace":79,"sho":68,"pas":76,"dri":79,"def":75,"phy":79,"img":"https://cdn.sofifa.net/players/270/673/26_120.png","tags":""},{"id":207865,"name":"Marquinhos","full":"Marcos Aoás Corrêa","pos":"DEF","fifa_pos":["CB"],"ovr":87,"pot":87,"age":31,"nat":"Brazil","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":5,"val":54500000,"foot":"Right","wf":3,"sm":3,"rep":4,"h":183,"pace":78,"sho":56,"pas":75,"dri":74,"def":89,"phy":80,"img":"https://cdn.sofifa.net/players/207/865/26_120.png","tags":"Tackling , Tactician"},{"id":243780,"name":"Lee Kang In","full":"Kang-in Lee이강인","pos":"ATT","fifa_pos":["RW","CM","RM"],"ovr":79,"pot":84,"age":24,"nat":"Korea Republic","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":19,"val":26500000,"foot":"Left","wf":3,"sm":4,"rep":2,"h":173,"pace":72,"sho":75,"pas":80,"dri":82,"def":50,"phy":64,"img":"https://cdn.sofifa.net/players/243/780/26_120.png","tags":""},{"id":264652,"name":"B. Barcola","full":"Bradley Barcola","pos":"ATT","fifa_pos":["LW","RW","LM"],"ovr":84,"pot":88,"age":22,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":29,"val":61500000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":188,"pace":90,"sho":77,"pas":78,"dri":84,"def":39,"phy":66,"img":"https://cdn.sofifa.net/players/264/652/26_120.png","tags":"Acrobat"},{"id":256903,"name":"Gonçalo Ramos","full":"Gonçalo Matias Ramos","pos":"ATT","fifa_pos":["ST"],"ovr":80,"pot":84,"age":24,"nat":"Portugal","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":9,"val":30500000,"foot":"Right","wf":4,"sm":2,"rep":1,"h":185,"pace":73,"sho":79,"pas":64,"dri":77,"def":48,"phy":79,"img":"https://cdn.sofifa.net/players/256/903/26_120.png","tags":""},{"id":220814,"name":"L. Hernández","full":"Lucas François Bernard Hernández Pi","pos":"DEF","fifa_pos":["CB","LB","LM"],"ovr":81,"pot":81,"age":29,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":21,"val":21500000,"foot":"Left","wf":2,"sm":2,"rep":3,"h":184,"pace":71,"sho":54,"pas":72,"dri":70,"def":82,"phy":77,"img":"https://cdn.sofifa.net/players/220/814/26_120.png","tags":""},{"id":70004,"name":"S. Mayulu","full":"Senny Mayulu","pos":"MID","fifa_pos":["CM"],"ovr":75,"pot":85,"age":19,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":24,"val":12000000,"foot":"Left","wf":5,"sm":3,"rep":1,"h":183,"pace":75,"sho":68,"pas":73,"dri":78,"def":57,"phy":55,"img":"https://cdn.sofifa.net/players/070/004/26_120.png","tags":""},{"id":256196,"name":"W. Pacho","full":"Willian Joel Pacho Tenorio","pos":"DEF","fifa_pos":["CB"],"ovr":86,"pot":89,"age":23,"nat":"Ecuador","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":51,"val":83000000,"foot":"Left","wf":3,"sm":2,"rep":3,"h":188,"pace":80,"sho":34,"pas":62,"dri":62,"def":86,"phy":86,"img":"https://cdn.sofifa.net/players/256/196/26_120.png","tags":""},{"id":258781,"name":"I. Zabarnyi","full":"Illia ZabarnyiЗабарний Ілля Борисович","pos":"DEF","fifa_pos":["CB"],"ovr":79,"pot":84,"age":22,"nat":"Ukraine","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":6,"val":24500000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":189,"pace":80,"sho":37,"pas":64,"dri":64,"def":80,"phy":78,"img":"https://cdn.sofifa.net/players/258/781/26_120.png","tags":""},{"id":279709,"name":"Lucas Beraldo","full":"Lucas Lopes Beraldo","pos":"DEF","fifa_pos":["CB","LB","LM"],"ovr":78,"pot":84,"age":21,"nat":"Brazil","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":4,"val":20500000,"foot":"Left","wf":2,"sm":2,"rep":1,"h":182,"pace":66,"sho":38,"pas":66,"dri":68,"def":79,"phy":75,"img":"https://cdn.sofifa.net/players/279/709/26_120.png","tags":""},{"id":74449,"name":"I. Mbaye","full":"Ibrahim Mbaye","pos":"ATT","fifa_pos":["RW","LW","RM"],"ovr":68,"pot":83,"age":17,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":49,"val":2800000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":176,"pace":77,"sho":60,"pas":60,"dri":72,"def":25,"phy":45,"img":"https://cdn.sofifa.net/players/074/449/26_120.png","tags":""},{"id":78216,"name":"N. Kamara","full":"Noham Kamara","pos":"DEF","fifa_pos":["CB"],"ovr":62,"pot":80,"age":18,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":43,"val":950000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":185,"pace":63,"sho":44,"pas":56,"dri":58,"def":63,"phy":55,"img":"https://cdn.sofifa.net/players/078/216/26_120.png","tags":""},{"id":240225,"name":"M. Safonov","full":"Matvey SafonovСафонов Матвей Евгеньевич","pos":"GK","fifa_pos":["GK"],"ovr":78,"pot":82,"age":26,"nat":"Russia","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":39,"val":15000000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":192,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/240/225/26_120.png","tags":""},{"id":251752,"name":"L. Chevalier","full":"Lucas Chevalier","pos":"GK","fifa_pos":["GK"],"ovr":83,"pot":88,"age":23,"nat":"France","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":30,"val":44000000,"foot":"Right","wf":3,"sm":1,"rep":3,"h":189,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/251/752/26_120.png","tags":""},{"id":279880,"name":"Renato Marin","full":"Renato Bellucci Marin","pos":"GK","fifa_pos":["GK"],"ovr":62,"pot":78,"age":18,"nat":"Italy","club":"Paris Saint-Germain","cid":73,"league":"Ligue 1","lvl":1,"jersey":89,"val":900000,"foot":"Left","wf":3,"sm":1,"rep":1,"h":193,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/279/880/26_120.png","tags":""}],"44":[{"id":224232,"name":"N. Barella","full":"Nicolò Barella","pos":"MID","fifa_pos":["CM"],"ovr":87,"pot":87,"age":28,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":23,"val":79500000,"foot":"Right","wf":4,"sm":3,"rep":4,"h":175,"pace":80,"sho":78,"pas":84,"dri":86,"def":81,"phy":76,"img":"https://cdn.sofifa.net/players/224/232/26_120.png","tags":"Acrobat"},{"id":208128,"name":"H. Çalhanoğlu","full":"Hakan Çalhanoğlu","pos":"MID","fifa_pos":["CDM","CM"],"ovr":86,"pot":86,"age":31,"nat":"Türkiye","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":20,"val":47500000,"foot":"Right","wf":5,"sm":4,"rep":4,"h":178,"pace":71,"sho":81,"pas":87,"dri":82,"def":81,"phy":73,"img":"https://cdn.sofifa.net/players/208/128/26_120.png","tags":"Playmaker , Distance shooter, Complete midfielder"},{"id":226268,"name":"F. Dimarco","full":"Federico Dimarco","pos":"DEF","fifa_pos":["LB","LM"],"ovr":85,"pot":85,"age":27,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":32,"val":52000000,"foot":"Left","wf":4,"sm":3,"rep":3,"h":175,"pace":80,"sho":78,"pas":84,"dri":82,"def":79,"phy":77,"img":"https://cdn.sofifa.net/players/226/268/26_120.png","tags":"Crosser"},{"id":231478,"name":"L. Martínez","full":"Lautaro Javier Martínez","pos":"ATT","fifa_pos":["ST"],"ovr":88,"pot":88,"age":27,"nat":"Argentina","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":10,"val":99000000,"foot":"Right","wf":4,"sm":4,"rep":5,"h":174,"pace":81,"sho":88,"pas":75,"dri":84,"def":51,"phy":83,"img":"https://cdn.sofifa.net/players/231/478/26_120.png","tags":"Acrobat, Clinical finisher"},{"id":192883,"name":"H. Mkhitaryan","full":"Henrikh Mkhitaryan","pos":"MID","fifa_pos":["CM"],"ovr":83,"pot":83,"age":36,"nat":"Armenia","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":22,"val":11500000,"foot":"Right","wf":5,"sm":4,"rep":3,"h":177,"pace":77,"sho":78,"pas":82,"dri":83,"def":72,"phy":75,"img":"https://cdn.sofifa.net/players/192/883/26_120.png","tags":""},{"id":258648,"name":"Carlos Augusto","full":"Carlos Augusto Zopalato Neves","pos":"DEF","fifa_pos":["LB","CB","LM"],"ovr":81,"pot":82,"age":26,"nat":"Brazil","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":30,"val":27500000,"foot":"Left","wf":2,"sm":3,"rep":3,"h":184,"pace":78,"sho":72,"pas":77,"dri":79,"def":79,"phy":76,"img":"https://cdn.sofifa.net/players/258/648/26_120.png","tags":""},{"id":239807,"name":"D. Frattesi","full":"Davide Frattesi","pos":"MID","fifa_pos":["CM"],"ovr":81,"pot":83,"age":25,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":16,"val":32000000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":178,"pace":82,"sho":77,"pas":78,"dri":82,"def":73,"phy":72,"img":"https://cdn.sofifa.net/players/239/807/26_120.png","tags":""},{"id":233096,"name":"D. Dumfries","full":"Denzel Justus Morris Dumfries","pos":"DEF","fifa_pos":["RB","RM"],"ovr":84,"pot":84,"age":29,"nat":"Netherlands","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":2,"val":37000000,"foot":"Right","wf":3,"sm":2,"rep":3,"h":188,"pace":84,"sho":70,"pas":75,"dri":79,"def":79,"phy":84,"img":"https://cdn.sofifa.net/players/233/096/26_120.png","tags":""},{"id":228093,"name":"M. Thuram","full":"Marcus Lilian Thuram-Ulien","pos":"ATT","fifa_pos":["ST"],"ovr":85,"pot":85,"age":27,"nat":"France","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":9,"val":58500000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":192,"pace":86,"sho":83,"pas":76,"dri":82,"def":50,"phy":80,"img":"https://cdn.sofifa.net/players/228/093/26_120.png","tags":""},{"id":210406,"name":"P. Zieliński","full":"Piotr Sebastian Zieliński","pos":"MID","fifa_pos":["CM"],"ovr":80,"pot":80,"age":31,"nat":"Poland","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":7,"val":17500000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":180,"pace":76,"sho":76,"pas":80,"dri":82,"def":70,"phy":59,"img":"https://cdn.sofifa.net/players/210/406/26_120.png","tags":""},{"id":184392,"name":"M. Darmian","full":"Matteo Darmian","pos":"DEF","fifa_pos":["RB","CB","RM"],"ovr":81,"pot":81,"age":35,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":36,"val":8000000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":182,"pace":71,"sho":62,"pas":74,"dri":76,"def":81,"phy":71,"img":"https://cdn.sofifa.net/players/184/392/26_120.png","tags":""},{"id":268534,"name":"A. Diouf","full":"Andy Alune Diouf","pos":"MID","fifa_pos":["CM","CDM","CAM"],"ovr":75,"pot":81,"age":22,"nat":"France","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":17,"val":9000000,"foot":"Left","wf":3,"sm":3,"rep":1,"h":187,"pace":77,"sho":68,"pas":71,"dri":78,"def":67,"phy":76,"img":"https://cdn.sofifa.net/players/268/534/26_120.png","tags":""},{"id":237383,"name":"A. Bastoni","full":"Alessandro Bastoni","pos":"DEF","fifa_pos":["CB"],"ovr":87,"pot":89,"age":26,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":95,"val":87000000,"foot":"Left","wf":2,"sm":2,"rep":4,"h":190,"pace":74,"sho":46,"pas":75,"dri":76,"def":88,"phy":82,"img":"https://cdn.sofifa.net/players/237/383/26_120.png","tags":"Tactician"},{"id":256632,"name":"Luis Henrique","full":"Luis Henrique Tomaz de Lima","pos":"MID","fifa_pos":["RM","LM","RW"],"ovr":78,"pot":83,"age":23,"nat":"Brazil","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":11,"val":21000000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":181,"pace":90,"sho":73,"pas":71,"dri":77,"def":54,"phy":77,"img":"https://cdn.sofifa.net/players/256/632/26_120.png","tags":""},{"id":276278,"name":"P. Sučić","full":"Petar Sučić","pos":"MID","fifa_pos":["CM","CDM"],"ovr":74,"pot":83,"age":21,"nat":"Croatia","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":8,"val":9500000,"foot":"Right","wf":4,"sm":3,"rep":1,"h":183,"pace":69,"sho":68,"pas":72,"dri":77,"def":61,"phy":74,"img":"https://cdn.sofifa.net/players/276/278/26_120.png","tags":""},{"id":229237,"name":"M. Akanji","full":"Manuel Obafemi Akanji","pos":"DEF","fifa_pos":["CB"],"ovr":82,"pot":82,"age":29,"nat":"Switzerland","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":25,"val":25500000,"foot":"Right","wf":4,"sm":2,"rep":3,"h":187,"pace":74,"sho":48,"pas":69,"dri":73,"def":82,"phy":81,"img":"https://cdn.sofifa.net/players/229/237/26_120.png","tags":""},{"id":241736,"name":"Y. Bisseck","full":"Yann Aurel Ludger Bisseck","pos":"DEF","fifa_pos":["CB"],"ovr":76,"pot":80,"age":24,"nat":"Germany","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":31,"val":9500000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":196,"pace":76,"sho":57,"pas":63,"dri":73,"def":75,"phy":78,"img":"https://cdn.sofifa.net/players/241/736/26_120.png","tags":"Aerial threat"},{"id":259565,"name":"Y. Bonny","full":"Ange-Yoan Bonny","pos":"ATT","fifa_pos":["ST","CAM"],"ovr":76,"pot":86,"age":21,"nat":"France","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":14,"val":17000000,"foot":"Right","wf":3,"sm":4,"rep":1,"h":189,"pace":87,"sho":75,"pas":67,"dri":76,"def":32,"phy":71,"img":"https://cdn.sofifa.net/players/259/565/26_120.png","tags":""},{"id":199845,"name":"F. Acerbi","full":"Francesco Acerbi","pos":"DEF","fifa_pos":["CB"],"ovr":84,"pot":84,"age":37,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":15,"val":7500000,"foot":"Left","wf":3,"sm":3,"rep":3,"h":192,"pace":57,"sho":50,"pas":65,"dri":65,"def":87,"phy":81,"img":"https://cdn.sofifa.net/players/199/845/26_120.png","tags":"Tactician"},{"id":198176,"name":"S. de Vrij","full":"Stefan de Vrij","pos":"DEF","fifa_pos":["CB"],"ovr":84,"pot":84,"age":33,"nat":"Netherlands","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":6,"val":20000000,"foot":"Right","wf":3,"sm":2,"rep":3,"h":189,"pace":62,"sho":41,"pas":68,"dri":69,"def":86,"phy":74,"img":"https://cdn.sofifa.net/players/198/176/26_120.png","tags":""},{"id":277327,"name":"F. Esposito","full":"Francesco Pio Esposito","pos":"ATT","fifa_pos":["ST"],"ovr":72,"pot":84,"age":20,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":94,"val":5500000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":191,"pace":64,"sho":72,"pas":62,"dri":69,"def":35,"phy":68,"img":"https://cdn.sofifa.net/players/277/327/26_120.png","tags":""},{"id":268558,"name":"T. Palacios","full":"Tiago Tomás Palacios","pos":"DEF","fifa_pos":["CB"],"ovr":67,"pot":77,"age":22,"nat":"Argentina","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":42,"val":2100000,"foot":"Left","wf":2,"sm":2,"rep":1,"h":196,"pace":53,"sho":38,"pas":43,"dri":47,"def":68,"phy":68,"img":"https://cdn.sofifa.net/players/268/558/26_120.png","tags":""},{"id":177683,"name":"Y. Sommer","full":"Yann Sommer","pos":"GK","fifa_pos":["GK"],"ovr":87,"pot":87,"age":36,"nat":"Switzerland","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":1,"val":9000000,"foot":"Right","wf":4,"sm":1,"rep":4,"h":183,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/177/683/26_120.png","tags":""},{"id":219715,"name":"R. Di Gennaro","full":"Raffaele Di Gennaro","pos":"GK","fifa_pos":["GK"],"ovr":68,"pot":68,"age":31,"nat":"Italy","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":12,"val":650000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":186,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/219/715/26_120.png","tags":""},{"id":243311,"name":"Josep Martínez","full":"Josep Martínez Riera","pos":"GK","fifa_pos":["GK"],"ovr":75,"pot":77,"age":27,"nat":"Spain","club":"Inter","cid":44,"league":"Serie A","lvl":1,"jersey":13,"val":5000000,"foot":"Right","wf":3,"sm":1,"rep":1,"h":191,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/243/311/26_120.png","tags":""}],"5":[{"id":238074,"name":"R. James","full":"Reece James","pos":"DEF","fifa_pos":["RB"],"ovr":81,"pot":84,"age":25,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":24,"val":31500000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":180,"pace":76,"sho":71,"pas":82,"dri":77,"def":81,"phy":81,"img":"https://cdn.sofifa.net/players/238/074/26_120.png","tags":"Crosser, Strength"},{"id":247090,"name":"E. Fernández","full":"Enzo Jeremías Fernández","pos":"MID","fifa_pos":["CM","CDM","CAM"],"ovr":84,"pot":87,"age":24,"nat":"Argentina","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":8,"val":57000000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":178,"pace":68,"sho":75,"pas":85,"dri":81,"def":73,"phy":75,"img":"https://cdn.sofifa.net/players/247/090/26_120.png","tags":"Playmaker"},{"id":239231,"name":"Marc Cucurella","full":"Marc Cucurella Saseta","pos":"DEF","fifa_pos":["LB"],"ovr":84,"pot":85,"age":26,"nat":"Spain","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":3,"val":45500000,"foot":"Left","wf":3,"sm":3,"rep":3,"h":174,"pace":75,"sho":64,"pas":79,"dri":80,"def":82,"phy":79,"img":"https://cdn.sofifa.net/players/239/231/26_120.png","tags":""},{"id":256079,"name":"M. Caicedo","full":"Moisés Isaac Caicedo Corozo","pos":"MID","fifa_pos":["CDM","CM"],"ovr":87,"pot":89,"age":23,"nat":"Ecuador","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":25,"val":93000000,"foot":"Right","wf":3,"sm":3,"rep":4,"h":178,"pace":71,"sho":64,"pas":78,"dri":81,"def":84,"phy":82,"img":"https://cdn.sofifa.net/players/256/079/26_120.png","tags":"Tackling , Tactician"},{"id":257534,"name":"C. Palmer","full":"Cole Jermaine Palmer","pos":"MID","fifa_pos":["CAM","RM","ST"],"ovr":87,"pot":90,"age":23,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":10,"val":109000000,"foot":"Left","wf":3,"sm":4,"rep":4,"h":185,"pace":75,"sho":83,"pas":87,"dri":87,"def":50,"phy":65,"img":"https://cdn.sofifa.net/players/257/534/26_120.png","tags":"Dribbler, Playmaker , Complete midfielder"},{"id":273018,"name":"Andrey Santos","full":"Andrey Nascimento dos Santos","pos":"MID","fifa_pos":["CM","CDM"],"ovr":80,"pot":87,"age":21,"nat":"Brazil","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":17,"val":42500000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":180,"pace":74,"sho":69,"pas":74,"dri":78,"def":77,"phy":80,"img":"https://cdn.sofifa.net/players/273/018/26_120.png","tags":""},{"id":259307,"name":"M. Gusto","full":"Malo Gusto","pos":"DEF","fifa_pos":["RB","RM"],"ovr":79,"pot":84,"age":22,"nat":"France","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":27,"val":25000000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":178,"pace":84,"sho":45,"pas":75,"dri":78,"def":73,"phy":74,"img":"https://cdn.sofifa.net/players/259/307/26_120.png","tags":""},{"id":238616,"name":"Pedro Neto","full":"Pedro Lomba Neto","pos":"MID","fifa_pos":["RM","LM","ST","RW"],"ovr":80,"pot":82,"age":25,"nat":"Portugal","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":7,"val":26500000,"foot":"Left","wf":4,"sm":4,"rep":1,"h":174,"pace":91,"sho":76,"pas":74,"dri":82,"def":40,"phy":68,"img":"https://cdn.sofifa.net/players/238/616/26_120.png","tags":"Speedster"},{"id":263620,"name":"R. Lavia","full":"Roméo Lavia","pos":"MID","fifa_pos":["CDM","CM"],"ovr":78,"pot":85,"age":21,"nat":"Belgium","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":45,"val":27000000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":181,"pace":69,"sho":52,"pas":72,"dri":77,"def":77,"phy":75,"img":"https://cdn.sofifa.net/players/263/620/26_120.png","tags":""},{"id":252042,"name":"João Pedro","full":"João Pedro Junqueira de Jesus","pos":"ATT","fifa_pos":["ST","CAM"],"ovr":79,"pot":84,"age":23,"nat":"Brazil","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":20,"val":27000000,"foot":"Right","wf":4,"sm":4,"rep":1,"h":188,"pace":78,"sho":78,"pas":72,"dri":81,"def":37,"phy":70,"img":"https://cdn.sofifa.net/players/252/042/26_120.png","tags":""},{"id":261530,"name":"Dário Essugo","full":"Dário Cassia Luís Essugo","pos":"MID","fifa_pos":["CDM","CM","CB"],"ovr":75,"pot":85,"age":20,"nat":"Portugal","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":14,"val":11500000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":178,"pace":76,"sho":58,"pas":64,"dri":73,"def":74,"phy":81,"img":"https://cdn.sofifa.net/players/261/530/26_120.png","tags":""},{"id":202652,"name":"R. Sterling","full":"Raheem Shaquille Sterling","pos":"ATT","fifa_pos":["LW","LM","RM"],"ovr":78,"pot":78,"age":30,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":15,"val":13500000,"foot":"Right","wf":3,"sm":4,"rep":3,"h":172,"pace":82,"sho":74,"pas":74,"dri":82,"def":42,"phy":48,"img":"https://cdn.sofifa.net/players/202/652/26_120.png","tags":"Acrobat"},{"id":76687,"name":"Estêvão","full":"Estêvão Willian Almeida","pos":"MID","fifa_pos":["RM","CAM","RW"],"ovr":78,"pot":89,"age":18,"nat":"Brazil","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":41,"val":29500000,"foot":"Left","wf":2,"sm":4,"rep":1,"h":176,"pace":90,"sho":74,"pas":73,"dri":82,"def":33,"phy":57,"img":"https://cdn.sofifa.net/players/076/687/26_120.png","tags":"Speedster, Acrobat"},{"id":268438,"name":"A. Garnacho","full":"Alejandro Garnacho Ferreyra","pos":"MID","fifa_pos":["CAM","LW","LM","CM"],"ovr":77,"pot":84,"age":21,"nat":"Argentina","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":49,"val":21500000,"foot":"Right","wf":4,"sm":3,"rep":1,"h":180,"pace":86,"sho":77,"pas":72,"dri":80,"def":37,"phy":58,"img":"https://cdn.sofifa.net/players/268/438/26_120.png","tags":""},{"id":262859,"name":"L. Colwill","full":"Levi Lemar Samuel Colwill","pos":"DEF","fifa_pos":["CB"],"ovr":80,"pot":84,"age":22,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":6,"val":27500000,"foot":"Left","wf":3,"sm":2,"rep":3,"h":187,"pace":70,"sho":43,"pas":71,"dri":72,"def":81,"phy":80,"img":"https://cdn.sofifa.net/players/262/859/26_120.png","tags":""},{"id":230918,"name":"T. Chalobah","full":"Trevoh Thomas Chalobah","pos":"DEF","fifa_pos":["CB","RB","RM"],"ovr":79,"pot":82,"age":25,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":23,"val":20500000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":192,"pace":66,"sho":53,"pas":69,"dri":70,"def":80,"phy":78,"img":"https://cdn.sofifa.net/players/230/918/26_120.png","tags":""},{"id":272978,"name":"J. Hato","full":"Jorrel Hato","pos":"DEF","fifa_pos":["LB","CB"],"ovr":78,"pot":89,"age":19,"nat":"Netherlands","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":21,"val":29000000,"foot":"Left","wf":3,"sm":2,"rep":1,"h":182,"pace":85,"sho":41,"pas":70,"dri":74,"def":75,"phy":73,"img":"https://cdn.sofifa.net/players/272/978/26_120.png","tags":""},{"id":259031,"name":"L. Delap","full":"Liam Rory Delap","pos":"ATT","fifa_pos":["ST"],"ovr":78,"pot":85,"age":22,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":9,"val":29000000,"foot":"Right","wf":5,"sm":3,"rep":1,"h":186,"pace":79,"sho":80,"pas":60,"dri":76,"def":30,"phy":81,"img":"https://cdn.sofifa.net/players/259/031/26_120.png","tags":""},{"id":248695,"name":"W. Fofana","full":"Wesley Fofana","pos":"DEF","fifa_pos":["CB"],"ovr":79,"pot":82,"age":24,"nat":"France","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":29,"val":21500000,"foot":"Right","wf":3,"sm":2,"rep":3,"h":185,"pace":74,"sho":41,"pas":62,"dri":71,"def":80,"phy":78,"img":"https://cdn.sofifa.net/players/248/695/26_120.png","tags":""},{"id":71651,"name":"J. Acheampong","full":"Joshua Kofi Acheampong","pos":"DEF","fifa_pos":["RB","CB","CDM","RM"],"ovr":70,"pot":85,"age":19,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":34,"val":3600000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":190,"pace":76,"sho":50,"pas":65,"dri":69,"def":66,"phy":73,"img":"https://cdn.sofifa.net/players/071/651/26_120.png","tags":""},{"id":266032,"name":"J. Gittens","full":"Jamie Jermaine Bynoe-Gittens","pos":"MID","fifa_pos":["LM","LW"],"ovr":78,"pot":85,"age":20,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":11,"val":28000000,"foot":"Right","wf":4,"sm":4,"rep":1,"h":179,"pace":92,"sho":73,"pas":66,"dri":84,"def":27,"phy":59,"img":"https://cdn.sofifa.net/players/266/032/26_120.png","tags":"Speedster, Dribbler, Acrobat"},{"id":222104,"name":"T. Adarabioyo","full":"Abdul-Nasir Oluwatosin Oluwadoyinsolami Adarabioyo","pos":"DEF","fifa_pos":["CB"],"ovr":78,"pot":80,"age":27,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":4,"val":15000000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":197,"pace":70,"sho":46,"pas":63,"dri":64,"def":78,"phy":79,"img":"https://cdn.sofifa.net/players/222/104/26_120.png","tags":"Aerial threat"},{"id":269495,"name":"F. Buonanotte","full":"Facundo Valentín Buonanotte","pos":"MID","fifa_pos":["RM","CAM","RW"],"ovr":75,"pot":82,"age":20,"nat":"Argentina","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":40,"val":11000000,"foot":"Left","wf":3,"sm":3,"rep":1,"h":174,"pace":75,"sho":70,"pas":73,"dri":76,"def":30,"phy":53,"img":"https://cdn.sofifa.net/players/269/495/26_120.png","tags":""},{"id":242578,"name":"B. Badiashile","full":"Benoît Badiashile Mukinayi","pos":"DEF","fifa_pos":["CB"],"ovr":76,"pot":80,"age":24,"nat":"France","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":5,"val":9500000,"foot":"Left","wf":2,"sm":2,"rep":2,"h":194,"pace":60,"sho":45,"pas":64,"dri":62,"def":76,"phy":77,"img":"https://cdn.sofifa.net/players/242/578/26_120.png","tags":"Aerial threat"},{"id":71998,"name":"T. George","full":"Tyrique George","pos":"MID","fifa_pos":["LM","RM","ST","LW"],"ovr":71,"pot":84,"age":19,"nat":"England","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":32,"val":4400000,"foot":"Right","wf":4,"sm":4,"rep":1,"h":185,"pace":79,"sho":66,"pas":66,"dri":73,"def":36,"phy":55,"img":"https://cdn.sofifa.net/players/071/998/26_120.png","tags":""},{"id":278813,"name":"Marc Guiu","full":"Marc Guiu Paz","pos":"ATT","fifa_pos":["ST"],"ovr":71,"pot":84,"age":19,"nat":"Spain","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":38,"val":4500000,"foot":"Right","wf":4,"sm":3,"rep":1,"h":187,"pace":76,"sho":70,"pas":55,"dri":69,"def":36,"phy":75,"img":"https://cdn.sofifa.net/players/278/813/26_120.png","tags":""},{"id":229942,"name":"A. Disasi","full":"Axel Arthur Disasi","pos":"DEF","fifa_pos":["CB","RB","RM"],"ovr":77,"pot":78,"age":27,"nat":"France","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":2,"val":10500000,"foot":"Right","wf":2,"sm":2,"rep":2,"h":190,"pace":56,"sho":48,"pas":60,"dri":58,"def":77,"phy":79,"img":"https://cdn.sofifa.net/players/229/942/26_120.png","tags":"Strength"},{"id":228789,"name":"Robert Sánchez","full":"Robert Lynch Sánchez","pos":"GK","fifa_pos":["GK"],"ovr":78,"pot":78,"age":27,"nat":"Spain","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":1,"val":11000000,"foot":"Right","wf":4,"sm":1,"rep":3,"h":197,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/228/789/26_120.png","tags":""},{"id":258485,"name":"F. Jörgensen","full":"Filip Jørgensen","pos":"GK","fifa_pos":["GK"],"ovr":77,"pot":83,"age":23,"nat":"Denmark","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":12,"val":13500000,"foot":"Right","wf":3,"sm":1,"rep":1,"h":192,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/258/485/26_120.png","tags":""},{"id":248158,"name":"G. Slonina","full":"Gabriel Paweł Słonina","pos":"GK","fifa_pos":["GK"],"ovr":68,"pot":80,"age":21,"nat":"United States","club":"Chelsea","cid":5,"league":"Premier League","lvl":1,"jersey":44,"val":2600000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":193,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/248/158/26_120.png","tags":""}],"1":[{"id":234378,"name":"D. Rice","full":"Declan Rice","pos":"MID","fifa_pos":["CDM","CM"],"ovr":87,"pot":88,"age":26,"nat":"England","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":41,"val":83500000,"foot":"Right","wf":3,"sm":3,"rep":4,"h":185,"pace":72,"sho":73,"pas":84,"dri":80,"def":83,"phy":83,"img":"https://cdn.sofifa.net/players/234/378/26_120.png","tags":"Crosser, Tackling , Tactician"},{"id":246669,"name":"B. Saka","full":"Bukayo Saka","pos":"ATT","fifa_pos":["RW","RM"],"ovr":88,"pot":90,"age":23,"nat":"England","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":7,"val":118500000,"foot":"Left","wf":4,"sm":3,"rep":4,"h":178,"pace":84,"sho":82,"pas":85,"dri":88,"def":60,"phy":73,"img":"https://cdn.sofifa.net/players/246/669/26_120.png","tags":"Dribbler, Crosser"},{"id":225193,"name":"Mikel Merino","full":"Mikel Merino Zazón","pos":"MID","fifa_pos":["CM","ST"],"ovr":83,"pot":83,"age":29,"nat":"Spain","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":23,"val":35500000,"foot":"Left","wf":3,"sm":3,"rep":3,"h":189,"pace":63,"sho":79,"pas":80,"dri":80,"def":81,"phy":80,"img":"https://cdn.sofifa.net/players/225/193/26_120.png","tags":""},{"id":222665,"name":"M. Ødegaard","full":"Martin Ødegaard","pos":"MID","fifa_pos":["CM","CAM"],"ovr":87,"pot":89,"age":26,"nat":"Norway","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":8,"val":98000000,"foot":"Left","wf":2,"sm":5,"rep":4,"h":178,"pace":68,"sho":79,"pas":88,"dri":87,"def":67,"phy":65,"img":"https://cdn.sofifa.net/players/222/665/26_120.png","tags":"Dribbler, Playmaker , Crosser, Complete midfielder"},{"id":241651,"name":"V. Gyökeres","full":"Viktor Einar Gyökeres","pos":"ATT","fifa_pos":["ST"],"ovr":87,"pot":88,"age":27,"nat":"Sweden","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":14,"val":93000000,"foot":"Right","wf":4,"sm":3,"rep":4,"h":189,"pace":90,"sho":86,"pas":73,"dri":81,"def":36,"phy":91,"img":"https://cdn.sofifa.net/players/241/651/26_120.png","tags":"Speedster, Strength, Clinical finisher, Complete forward"},{"id":248148,"name":"Zubimendi","full":"Martín Zubimendi Ibáñez","pos":"MID","fifa_pos":["CDM","CM"],"ovr":83,"pot":87,"age":26,"nat":"Spain","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":36,"val":45500000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":180,"pace":66,"sho":68,"pas":79,"dri":79,"def":80,"phy":73,"img":"https://cdn.sofifa.net/players/248/148/26_120.png","tags":""},{"id":235794,"name":"E. Eze","full":"Eberechi Oluchi Eze","pos":"MID","fifa_pos":["CAM","LW","ST"],"ovr":83,"pot":84,"age":27,"nat":"England","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":10,"val":42000000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":178,"pace":74,"sho":80,"pas":81,"dri":87,"def":50,"phy":68,"img":"https://cdn.sofifa.net/players/235/794/26_120.png","tags":"Dribbler, Acrobat"},{"id":251566,"name":"Gabriel Martinelli","full":"Gabriel Teodoro Martinelli Silva","pos":"ATT","fifa_pos":["LW","LM"],"ovr":81,"pot":84,"age":24,"nat":"Brazil","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":11,"val":35000000,"foot":"Right","wf":3,"sm":4,"rep":3,"h":178,"pace":90,"sho":77,"pas":75,"dri":83,"def":46,"phy":72,"img":"https://cdn.sofifa.net/players/251/566/26_120.png","tags":"Speedster"},{"id":278773,"name":"M. Lewis-Skelly","full":"Myles Anthony Lewis-Skelly","pos":"DEF","fifa_pos":["LB","CM"],"ovr":78,"pot":87,"age":18,"nat":"England","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":49,"val":28000000,"foot":"Left","wf":3,"sm":3,"rep":1,"h":178,"pace":76,"sho":60,"pas":74,"dri":77,"def":75,"phy":78,"img":"https://cdn.sofifa.net/players/278/773/26_120.png","tags":""},{"id":257711,"name":"R. Calafiori","full":"Riccardo Calafiori","pos":"DEF","fifa_pos":["LB","CB"],"ovr":78,"pot":84,"age":23,"nat":"Italy","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":33,"val":21000000,"foot":"Left","wf":4,"sm":3,"rep":1,"h":188,"pace":72,"sho":66,"pas":71,"dri":75,"def":77,"phy":77,"img":"https://cdn.sofifa.net/players/257/711/26_120.png","tags":""},{"id":235790,"name":"K. Havertz","full":"Kai Lukas Havertz","pos":"ATT","fifa_pos":["ST","CM","CAM"],"ovr":82,"pot":84,"age":26,"nat":"Germany","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":29,"val":38000000,"foot":"Left","wf":4,"sm":4,"rep":3,"h":193,"pace":72,"sho":79,"pas":78,"dri":81,"def":48,"phy":74,"img":"https://cdn.sofifa.net/players/235/790/26_120.png","tags":""},{"id":230666,"name":"Gabriel Jesus","full":"Gabriel Fernando de Jesus","pos":"ATT","fifa_pos":["ST","CAM"],"ovr":80,"pot":80,"age":28,"nat":"Brazil","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":9,"val":21500000,"foot":"Right","wf":3,"sm":4,"rep":3,"h":175,"pace":81,"sho":79,"pas":74,"dri":86,"def":39,"phy":71,"img":"https://cdn.sofifa.net/players/230/666/26_120.png","tags":"Dribbler, Acrobat"},{"id":210697,"name":"C. Nørgaard","full":"Christian Thers Nørgaard","pos":"MID","fifa_pos":["CDM","CM"],"ovr":80,"pot":80,"age":31,"nat":"Denmark","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":16,"val":15000000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":187,"pace":49,"sho":65,"pas":74,"dri":71,"def":79,"phy":79,"img":"https://cdn.sofifa.net/players/210/697/26_120.png","tags":""},{"id":254796,"name":"N. Madueke","full":"Chukwunonso Tristan Madueke","pos":"ATT","fifa_pos":["RW","RM"],"ovr":80,"pot":84,"age":23,"nat":"England","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":20,"val":30000000,"foot":"Left","wf":3,"sm":4,"rep":1,"h":182,"pace":88,"sho":75,"pas":74,"dri":83,"def":45,"phy":69,"img":"https://cdn.sofifa.net/players/254/796/26_120.png","tags":""},{"id":207421,"name":"L. Trossard","full":"Leandro Trossard","pos":"ATT","fifa_pos":["LW","ST","LM"],"ovr":83,"pot":83,"age":30,"nat":"Belgium","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":19,"val":35000000,"foot":"Right","wf":5,"sm":4,"rep":3,"h":171,"pace":80,"sho":81,"pas":80,"dri":85,"def":30,"phy":60,"img":"https://cdn.sofifa.net/players/207/421/26_120.png","tags":"Acrobat"},{"id":251805,"name":"J. Timber","full":"Jurriën David Norman Timber","pos":"DEF","fifa_pos":["RB","LB","CB","RM"],"ovr":82,"pot":85,"age":24,"nat":"Netherlands","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":12,"val":38500000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":179,"pace":76,"sho":48,"pas":72,"dri":77,"def":82,"phy":80,"img":"https://cdn.sofifa.net/players/251/805/26_120.png","tags":""},{"id":256197,"name":"P. Hincapié","full":"Piero Martín Hincapié Reyna","pos":"DEF","fifa_pos":["CB","LB","LM"],"ovr":83,"pot":89,"age":23,"nat":"Ecuador","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":5,"val":52000000,"foot":"Left","wf":2,"sm":3,"rep":3,"h":184,"pace":84,"sho":41,"pas":65,"dri":72,"def":84,"phy":82,"img":"https://cdn.sofifa.net/players/256/197/26_120.png","tags":""},{"id":243715,"name":"W. Saliba","full":"William Alain André Gabriel Saliba","pos":"DEF","fifa_pos":["CB"],"ovr":87,"pot":89,"age":24,"nat":"France","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":2,"val":92000000,"foot":"Right","wf":3,"sm":2,"rep":4,"h":193,"pace":77,"sho":39,"pas":68,"dri":72,"def":87,"phy":83,"img":"https://cdn.sofifa.net/players/243/715/26_120.png","tags":"Tackling , Tactician , Strength, Complete defender"},{"id":271807,"name":"E. Nwaneri","full":"Ethan Chidiebere Nwaneri","pos":"ATT","fifa_pos":["RW","CM","RM"],"ovr":76,"pot":87,"age":18,"nat":"England","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":22,"val":16000000,"foot":"Left","wf":3,"sm":3,"rep":1,"h":176,"pace":82,"sho":70,"pas":74,"dri":78,"def":50,"phy":54,"img":"https://cdn.sofifa.net/players/271/807/26_120.png","tags":""},{"id":231936,"name":"B. White","full":"Benjamin William White","pos":"DEF","fifa_pos":["RB"],"ovr":83,"pot":83,"age":27,"nat":"England","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":4,"val":35000000,"foot":"Right","wf":4,"sm":2,"rep":3,"h":185,"pace":70,"sho":35,"pas":75,"dri":75,"def":83,"phy":78,"img":"https://cdn.sofifa.net/players/231/936/26_120.png","tags":""},{"id":232580,"name":"Gabriel","full":"Gabriel dos Santos Magalhães","pos":"DEF","fifa_pos":["CB"],"ovr":88,"pot":88,"age":27,"nat":"Brazil","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":6,"val":84000000,"foot":"Left","wf":2,"sm":2,"rep":4,"h":190,"pace":64,"sho":44,"pas":64,"dri":65,"def":88,"phy":84,"img":"https://cdn.sofifa.net/players/232/580/26_120.png","tags":"Aerial threat, Tackling , Tactician , Strength, Complete def"},{"id":264846,"name":"Mosquera","full":"Cristhian Andrey Mosquera Ibarguen","pos":"DEF","fifa_pos":["CB"],"ovr":77,"pot":85,"age":21,"nat":"Spain","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":3,"val":22000000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":188,"pace":74,"sho":46,"pas":60,"dri":56,"def":78,"phy":76,"img":"https://cdn.sofifa.net/players/264/846/26_120.png","tags":""},{"id":220901,"name":"David Raya","full":"David Raya Martín","pos":"GK","fifa_pos":["GK"],"ovr":87,"pot":87,"age":29,"nat":"Spain","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":1,"val":54500000,"foot":"Right","wf":3,"sm":1,"rep":4,"h":183,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/220/901/26_120.png","tags":""},{"id":206585,"name":"Kepa","full":"Kepa Arrizabalaga Revuelta","pos":"GK","fifa_pos":["GK"],"ovr":79,"pot":79,"age":30,"nat":"Spain","club":"Arsenal","cid":1,"league":"Premier League","lvl":1,"jersey":13,"val":11500000,"foot":"Right","wf":4,"sm":1,"rep":2,"h":189,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/206/585/26_120.png","tags":""}],"22":[{"id":204923,"name":"M. Sabitzer","full":"Marcel Sabitzer","pos":"MID","fifa_pos":["CDM","CM"],"ovr":80,"pot":80,"age":31,"nat":"Austria","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":20,"val":15000000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":178,"pace":74,"sho":80,"pas":80,"dri":80,"def":76,"phy":76,"img":"https://cdn.sofifa.net/players/204/923/26_120.png","tags":""},{"id":246863,"name":"F. Nmecha","full":"Felix Kalu Nmecha","pos":"MID","fifa_pos":["CDM","CM"],"ovr":82,"pot":86,"age":24,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":8,"val":40000000,"foot":"Right","wf":3,"sm":4,"rep":3,"h":194,"pace":82,"sho":74,"pas":73,"dri":81,"def":80,"phy":86,"img":"https://cdn.sofifa.net/players/246/863/26_120.png","tags":"Aerial threat, Strength"},{"id":208333,"name":"E. Can","full":"Emre Can","pos":"DEF","fifa_pos":["CB","CDM","CM"],"ovr":82,"pot":82,"age":31,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":23,"val":21000000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":186,"pace":77,"sho":76,"pas":72,"dri":74,"def":82,"phy":84,"img":"https://cdn.sofifa.net/players/208/333/26_120.png","tags":"Tackling , Strength"},{"id":215441,"name":"S. Guirassy","full":"Serhou Yadaly Guirassy","pos":"ATT","fifa_pos":["ST"],"ovr":87,"pot":87,"age":29,"nat":"Guinea","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":9,"val":79500000,"foot":"Right","wf":4,"sm":3,"rep":4,"h":187,"pace":72,"sho":88,"pas":76,"dri":83,"def":45,"phy":83,"img":"https://cdn.sofifa.net/players/215/441/26_120.png","tags":"Clinical finisher"},{"id":190765,"name":"P. Groß","full":"Pascal Groß","pos":"MID","fifa_pos":["CDM","CM"],"ovr":80,"pot":80,"age":34,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":13,"val":7000000,"foot":"Right","wf":4,"sm":3,"rep":3,"h":181,"pace":48,"sho":75,"pas":84,"dri":79,"def":72,"phy":76,"img":"https://cdn.sofifa.net/players/190/765/26_120.png","tags":"Crosser"},{"id":224196,"name":"R. Bensebaini","full":"Ramy Bensebainiرامي بن سبعيني","pos":"DEF","fifa_pos":["LB","CB","LM"],"ovr":79,"pot":79,"age":30,"nat":"Algeria","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":5,"val":15000000,"foot":"Left","wf":4,"sm":3,"rep":2,"h":187,"pace":73,"sho":70,"pas":70,"dri":77,"def":78,"phy":79,"img":"https://cdn.sofifa.net/players/224/196/26_120.png","tags":""},{"id":247819,"name":"N. Schlotterbeck","full":"Nico Cedric Schlotterbeck","pos":"DEF","fifa_pos":["CB"],"ovr":85,"pot":88,"age":25,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":4,"val":63500000,"foot":"Left","wf":2,"sm":2,"rep":3,"h":191,"pace":74,"sho":60,"pas":75,"dri":73,"def":85,"phy":82,"img":"https://cdn.sofifa.net/players/247/819/26_120.png","tags":"Tackling"},{"id":212194,"name":"J. Brandt","full":"Julian Brandt","pos":"MID","fifa_pos":["CAM","CM"],"ovr":83,"pot":83,"age":29,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":10,"val":35500000,"foot":"Right","wf":4,"sm":4,"rep":3,"h":185,"pace":74,"sho":78,"pas":83,"dri":84,"def":44,"phy":70,"img":"https://cdn.sofifa.net/players/212/194/26_120.png","tags":""},{"id":270964,"name":"J. Bellingham","full":"Jobe Samuel Patrick Bellingham","pos":"MID","fifa_pos":["CM","CDM","CAM"],"ovr":74,"pot":85,"age":19,"nat":"England","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":7,"val":9000000,"foot":"Right","wf":3,"sm":3,"rep":1,"h":191,"pace":70,"sho":68,"pas":71,"dri":74,"def":72,"phy":78,"img":"https://cdn.sofifa.net/players/270/964/26_120.png","tags":""},{"id":229891,"name":"J. Ryerson","full":"Julian Ryerson","pos":"DEF","fifa_pos":["RB","LB","RM"],"ovr":79,"pot":80,"age":27,"nat":"Norway","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":26,"val":18500000,"foot":"Right","wf":3,"sm":2,"rep":2,"h":183,"pace":74,"sho":63,"pas":71,"dri":76,"def":77,"phy":82,"img":"https://cdn.sofifa.net/players/229/891/26_120.png","tags":""},{"id":251852,"name":"K. Adeyemi","full":"Karim-David Adeyemi","pos":"MID","fifa_pos":["RM","LW","CAM","RW"],"ovr":81,"pot":86,"age":23,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":27,"val":39000000,"foot":"Left","wf":4,"sm":4,"rep":3,"h":180,"pace":96,"sho":76,"pas":72,"dri":82,"def":36,"phy":69,"img":"https://cdn.sofifa.net/players/251/852/26_120.png","tags":"Speedster, Acrobat"},{"id":259716,"name":"D. Svensson","full":"Daniel Svensson","pos":"DEF","fifa_pos":["LB","CM","LM"],"ovr":77,"pot":82,"age":23,"nat":"Sweden","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":24,"val":15000000,"foot":"Left","wf":4,"sm":2,"rep":1,"h":178,"pace":77,"sho":56,"pas":75,"dri":76,"def":73,"phy":74,"img":"https://cdn.sofifa.net/players/259/716/26_120.png","tags":""},{"id":259075,"name":"Yan Couto","full":"Yan Bueno Couto","pos":"DEF","fifa_pos":["RB","RM"],"ovr":77,"pot":82,"age":23,"nat":"Brazil","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":2,"val":15000000,"foot":"Right","wf":3,"sm":4,"rep":1,"h":168,"pace":78,"sho":61,"pas":77,"dri":83,"def":69,"phy":61,"img":"https://cdn.sofifa.net/players/259/075/26_120.png","tags":""},{"id":235407,"name":"S. Özcan","full":"Salih Özcan","pos":"MID","fifa_pos":["CDM","CM","CB"],"ovr":75,"pot":76,"age":27,"nat":"Türkiye","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":6,"val":6000000,"foot":"Right","wf":3,"sm":2,"rep":2,"h":182,"pace":70,"sho":59,"pas":68,"dri":73,"def":75,"phy":79,"img":"https://cdn.sofifa.net/players/235/407/26_120.png","tags":""},{"id":259356,"name":"C. Chukwuemeka","full":"Carney Chibueze Chukwuemeka","pos":"MID","fifa_pos":["CAM","CM"],"ovr":76,"pot":84,"age":21,"nat":"England","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":17,"val":17000000,"foot":"Right","wf":3,"sm":4,"rep":1,"h":187,"pace":74,"sho":66,"pas":74,"dri":80,"def":57,"phy":66,"img":"https://cdn.sofifa.net/players/259/356/26_120.png","tags":""},{"id":254117,"name":"M. Beier","full":"Maximilian Beier","pos":"ATT","fifa_pos":["ST","RM","LM","RW"],"ovr":79,"pot":84,"age":22,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":14,"val":27500000,"foot":"Right","wf":3,"sm":4,"rep":1,"h":185,"pace":86,"sho":79,"pas":68,"dri":80,"def":43,"phy":62,"img":"https://cdn.sofifa.net/players/254/117/26_120.png","tags":""},{"id":252037,"name":"Fábio Silva","full":"Fábio Daniel Soares Silva","pos":"ATT","fifa_pos":["ST","LW"],"ovr":79,"pot":85,"age":22,"nat":"Portugal","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":21,"val":28500000,"foot":"Right","wf":3,"sm":4,"rep":1,"h":185,"pace":81,"sho":77,"pas":64,"dri":79,"def":32,"phy":79,"img":"https://cdn.sofifa.net/players/252/037/26_120.png","tags":""},{"id":229476,"name":"W. Anton","full":"Waldemar AntonРипцов-Антон Владимир Александрович","pos":"DEF","fifa_pos":["CB"],"ovr":82,"pot":82,"age":28,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":3,"val":26500000,"foot":"Right","wf":3,"sm":2,"rep":3,"h":189,"pace":69,"sho":47,"pas":67,"dri":66,"def":84,"phy":84,"img":"https://cdn.sofifa.net/players/229/476/26_120.png","tags":""},{"id":212190,"name":"N. Süle","full":"Niklas Süle","pos":"DEF","fifa_pos":["CB","RB","RM"],"ovr":81,"pot":81,"age":29,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":25,"val":21500000,"foot":"Right","wf":3,"sm":3,"rep":3,"h":195,"pace":61,"sho":51,"pas":68,"dri":67,"def":81,"phy":79,"img":"https://cdn.sofifa.net/players/212/190/26_120.png","tags":"Aerial threat, Strength"},{"id":278455,"name":"A. Anselmino","full":"Aarón Anselmino","pos":"DEF","fifa_pos":["CB"],"ovr":70,"pot":82,"age":20,"nat":"Argentina","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":28,"val":3600000,"foot":"Right","wf":4,"sm":2,"rep":1,"h":186,"pace":67,"sho":45,"pas":62,"dri":63,"def":70,"phy":72,"img":"https://cdn.sofifa.net/players/278/455/26_120.png","tags":""},{"id":278854,"name":"A. Kabar","full":"Almugera Raouf Mohammed Kabar","pos":"DEF","fifa_pos":["LB","LM"],"ovr":64,"pot":81,"age":19,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":42,"val":1500000,"foot":"Left","wf":3,"sm":3,"rep":1,"h":181,"pace":77,"sho":41,"pas":60,"dri":63,"def":58,"phy":70,"img":"https://cdn.sofifa.net/players/278/854/26_120.png","tags":""},{"id":262105,"name":"J. Duranville","full":"Julien Dienda M. Duranville","pos":"MID","fifa_pos":["RM","LM","ST","RW"],"ovr":72,"pot":87,"age":19,"nat":"Belgium","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":16,"val":5500000,"foot":"Right","wf":3,"sm":5,"rep":1,"h":170,"pace":88,"sho":61,"pas":63,"dri":82,"def":26,"phy":49,"img":"https://cdn.sofifa.net/players/262/105/26_120.png","tags":"Dribbler, Acrobat"},{"id":73057,"name":"C. Campbell","full":"William Cole Campbell","pos":"MID","fifa_pos":["RM","RW"],"ovr":67,"pot":82,"age":19,"nat":"United States","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":37,"val":2400000,"foot":"Left","wf":3,"sm":4,"rep":1,"h":170,"pace":89,"sho":57,"pas":59,"dri":71,"def":26,"phy":42,"img":"https://cdn.sofifa.net/players/073/057/26_120.png","tags":""},{"id":73016,"name":"F. Mane","full":"Filippo Calixte Mané","pos":"DEF","fifa_pos":["CB","RB"],"ovr":62,"pot":79,"age":20,"nat":"Italy","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":39,"val":975000,"foot":"Right","wf":3,"sm":2,"rep":1,"h":188,"pace":68,"sho":25,"pas":43,"dri":55,"def":62,"phy":61,"img":"https://cdn.sofifa.net/players/073/016/26_120.png","tags":""},{"id":235073,"name":"G. Kobel","full":"Gregor Kobel","pos":"GK","fifa_pos":["GK"],"ovr":86,"pot":89,"age":27,"nat":"Switzerland","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":1,"val":66500000,"foot":"Right","wf":3,"sm":1,"rep":4,"h":195,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/235/073/26_120.png","tags":""},{"id":210772,"name":"P. Drewes","full":"Patrick Drewes","pos":"GK","fifa_pos":["GK"],"ovr":71,"pot":71,"age":32,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":30,"val":925000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":194,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/210/772/26_120.png","tags":""},{"id":241050,"name":"A. Meyer","full":"Alexander Niklas Meyer-Schade","pos":"GK","fifa_pos":["GK"],"ovr":75,"pot":75,"age":34,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":33,"val":950000,"foot":"Right","wf":3,"sm":1,"rep":1,"h":195,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/241/050/26_120.png","tags":""},{"id":266906,"name":"S. Ostrzinski","full":"Silas Ostrzinski","pos":"GK","fifa_pos":["GK"],"ovr":63,"pot":77,"age":21,"nat":"Germany","club":"Borussia Dortmund","cid":22,"league":"Bundesliga","lvl":1,"jersey":31,"val":1000000,"foot":"Right","wf":2,"sm":1,"rep":1,"h":198,"pace":0,"sho":0,"pas":0,"dri":0,"def":0,"phy":0,"img":"https://cdn.sofifa.net/players/266/906/26_120.png","tags":""}]};
+
+// CLUBS_RAW: { id: [name, league, lvl, count, max_ovr] }
+const CLUBS = Object.entries(CLUBS_RAW).map(([id,[name,league,lvl,count,max_ovr]])=>
+  ({id, name, league, lvl, count, max_ovr}));
+
+const FORMATIONS = {
+  "4-3-3":   {DEF:4,MID:3,ATT:3},
+  "4-4-2":   {DEF:4,MID:4,ATT:2},
+  "4-2-3-1": {DEF:4,MID:5,ATT:1},
+  "3-5-2":   {DEF:3,MID:5,ATT:2},
+  "3-4-3":   {DEF:3,MID:4,ATT:3},
+  "5-3-2":   {DEF:5,MID:3,ATT:2},
+  "4-1-4-1": {DEF:4,MID:5,ATT:1},
+  "4-5-1":   {DEF:4,MID:5,ATT:1},
+};
+const POS_LBL  = {GK:"Torwart",DEF:"Abwehr",MID:"Mittelfeld",ATT:"Angriff"};
+const POS_ICON = {GK:"🧤",DEF:"🛡",MID:"⚡",ATT:"⚽"};
+const STAT_KEYS = ['pace','sho','pas','dri','def','phy'];
+const STAT_LBLS = ['PAC','SHO','PAS','DRI','DEF','PHY'];
+const GK_STAT_LBLS = ['DIV','HAN','KIC','REF','SPD','POS'];
+
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let cfg = {clubId:null, clubName:'', formation:'4-3-3', filter:'all'};
+let squad = [];      // loaded club squad
+let slots = [];      // [{pos,filled,player}]
+let curIdx = 0;
+let cards  = [];
+let cardIdx = 0;
+let replacing = null;
+
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+const show = id => {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+const toast = msg => {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+};
+
+// Jersey colours based on club id (deterministic hash)
+function clubColor(id) {
+  const colors = ['#C8102E','#003399','#EF0107','#001C58','#DA291C',
+    '#6CABDD','#034694','#1B458F','#FFCD00','#E30614','#D4AF37','#009B3A'];
+  const n = parseInt(id) % colors.length;
+  return colors[n];
+}
+function clubInitials(name) {
+  return name.replace(/FC |SV |SC |VfB |VfL |RB |1\. |Borussia /gi,'')
+    .split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,3);
+}
+
+function buildSlots() {
+  const f = FORMATIONS[cfg.formation];
+  const s = [{pos:'GK',filled:false,player:null}];
+  ['DEF','MID','ATT'].forEach(p=>{for(let i=0;i<(f[p]||0);i++) s.push({pos:p,filled:false,player:null});});
+  return s;
+}
+function slotLabel(idx) {
+  const s=slots[idx]; const same=slots.filter(x=>x.pos===s.pos);
+  if(same.length===1) return POS_LBL[s.pos];
+  return POS_LBL[s.pos]+' '+(same.indexOf(s)+1);
+}
+function filteredPool(pos) {
+  let p = squad.filter(x=>x.pos===pos);
+  if(cfg.filter==='top')      p=p.filter(x=>x.ovr>=75);
+  if(cfg.filter==='young')    p=p.filter(x=>x.pot>=80);
+  if(cfg.filter==='pace')     p=p.filter(x=>x.pace>=80);
+  if(cfg.filter==='physical') p=p.filter(x=>x.phy>=80);
+  const taken = slots.filter(s=>s.filled).map(s=>s.player.id);
+  return p.filter(x=>!taken.includes(x.id)).sort((a,b)=>b.ovr-a.ovr);
+}
+
+// ════════════════════════════════════════════
+//  SCREEN 1 — TEAM PICKER
+// ════════════════════════════════════════════
+let activeLeagueFilter = {lvl:0, league:''};
+
+function renderClubs(query='') {
+  const list = document.getElementById('clubs-list');
+  const q = query.toLowerCase().trim();
+  let filtered = CLUBS;
+  if(q) filtered = filtered.filter(c=>c.name.toLowerCase().includes(q)||c.league.toLowerCase().includes(q));
+  if(activeLeagueFilter.league) filtered = filtered.filter(c=>c.league===activeLeagueFilter.league);
+  else if(activeLeagueFilter.lvl>0) filtered = filtered.filter(c=>c.lvl===activeLeagueFilter.lvl);
+  filtered = filtered.sort((a,b)=>b.max_ovr-a.max_ovr).slice(0,80);
+
+  list.innerHTML = '';
+  filtered.forEach(club => {
+    const row = document.createElement('div');
+    row.className = 'club-row';
+    const col = clubColor(club.id);
+    const ini = clubInitials(club.name);
+    row.innerHTML = `
+      <div class="club-badge" style="background:${col}">${ini}</div>
+      <div class="club-info">
+        <div class="club-name">${club.name}</div>
+        <div class="club-meta">${club.league} · ${club.count} Spieler</div>
+      </div>
+      <div class="club-ovr">${club.max_ovr}</div>`;
+    row.addEventListener('click', () => selectClub(club));
+    list.appendChild(row);
+  });
+  if(!filtered.length) {
+    list.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.9rem">Kein Verein gefunden</div>';
+  }
+}
+
+document.getElementById('search-input').addEventListener('input', e => renderClubs(e.target.value));
+
+document.getElementById('league-filters').addEventListener('click', e => {
+  const chip = e.target.closest('.f-chip'); if(!chip) return;
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('on'));
+  chip.classList.add('on');
+  activeLeagueFilter = {
+    lvl: parseInt(chip.dataset.lvl||0),
+    league: chip.dataset.league||''
+  };
+  renderClubs(document.getElementById('search-input').value);
+});
+
+async function selectClub(club) {
+  cfg.clubId = club.id; cfg.clubName = club.name;
+  document.getElementById('cfg-team-name').textContent = club.name;
+  document.getElementById('cfg-team-meta').textContent = `${club.league} · OVR max ${club.max_ovr}`;
+
+  // Load squad
+  if(POPULAR[club.id]) {
+    squad = POPULAR[club.id];
+  } else {
+    toast('Lade Kader…');
+    try {
+      const r = await fetch(`data/clubs/${club.id}.json`);
+      squad = await r.json();
+    } catch(e) {
+      toast('⚠ Kader nicht verfügbar');
+      return;
+    }
+  }
+  show('s-config');
+}
+
+// ════════════════════════════════════════════
+//  SCREEN 2 — CONFIG
+// ════════════════════════════════════════════
+document.getElementById('back-config').addEventListener('click', ()=>show('s-team'));
+
+document.getElementById('fm-grid').addEventListener('click', e=>{
+  const b=e.target.closest('.fm-btn'); if(!b) return;
+  document.querySelectorAll('.fm-btn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); cfg.formation=b.dataset.fm;
+});
+document.getElementById('filter-grid').addEventListener('click', e=>{
+  const c=e.target.closest('.flt-chip'); if(!c) return;
+  document.querySelectorAll('.flt-chip').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); cfg.filter=c.dataset.flt;
+});
+
+document.getElementById('start-swipe-btn').addEventListener('click', ()=>{
+  slots = buildSlots();
+  curIdx=0; replacing=null;
+  cards = filteredPool(slots[0].pos);
+  cardIdx=0;
+  renderSwipeScreen(0);
+  show('s-swipe');
+});
+
+// ════════════════════════════════════════════
+//  SCREEN 3 — SWIPE
+// ════════════════════════════════════════════
+function renderSwipeScreen(slotIdx) {
+  const slot = slots[slotIdx];
+  const lbl = (replacing!==null?'TAUSCH: ':'')+slotLabel(slotIdx).toUpperCase();
+  document.getElementById('sw-pos').textContent = lbl;
+  document.getElementById('sw-sub').textContent =
+    `Slot ${slotIdx+1} von ${slots.length}`;
+  document.getElementById('sw-cnt').textContent =
+    Math.max(0, cards.length-cardIdx)+' Spieler';
+  renderMiniPitch(slotIdx);
+  renderCards();
+}
+
+// ── Mini Pitch ──
+function renderMiniPitch(activeSlotIdx) {
+  const f = FORMATIONS[cfg.formation];
+  const rows = document.getElementById('mini-rows');
+  rows.innerHTML='';
+  [{pos:'ATT',count:f.ATT},{pos:'MID',count:f.MID},{pos:'DEF',count:f.DEF},{pos:'GK',count:1}]
+    .forEach(({pos,count})=>{
+      const row = document.createElement('div');
+      row.className='mini-row';
+      const ps=slots.filter(s=>s.pos===pos);
+      for(let i=0;i<count;i++){
+        const slot=ps[i]; const si=slot?slots.indexOf(slot):-1;
+        const isActive=si===activeSlotIdx;
+        const wrap=document.createElement('div'); wrap.className='mp';
+        const j=document.createElement('div');
+        j.className='mj '+(slot?.filled?pos:'empty')+(isActive?' active-slot':'');
+        if(slot?.filled){
+          const nm=slot.player.name.split(' ').pop();
+          j.textContent=nm[0];
+        } else if(isActive){ j.textContent='✦'; }
+        const n=document.createElement('div');
+        n.className='mn'+(isActive?' active':(!slot?.filled?' empty':''));
+        if(slot?.filled){
+          n.textContent=slot.player.name.split(' ').pop().slice(0,6);
+        } else if(isActive){
+          n.textContent='← now';
+        }
+        wrap.appendChild(j); wrap.appendChild(n);
+        if(!isActive&&slot&&si>=0){
+          wrap.style.cursor='pointer';
+          wrap.addEventListener('click',()=>navigateToSlot(si));
+        }
+        row.appendChild(wrap);
+      }
+      rows.appendChild(row);
+    });
+}
+
+function navigateToSlot(si) {
+  const slot=slots[si];
+  if(slot.filled){
+    replacing=si;
+    const taken=slots.filter((s,i)=>s.filled&&i!==si).map(s=>s.player.id);
+    cards=squad.filter(p=>p.pos===slot.pos&&!taken.includes(p.id)).sort((a,b)=>b.ovr-a.ovr);
+    cards=[slot.player,...cards.filter(p=>p.id!==slot.player.id)];
+  } else {
+    replacing=null;
+    curIdx=si;
+    cards=filteredPool(slot.pos);
+  }
+  cardIdx=0; curIdx=si;
+  renderSwipeScreen(si);
+  show('s-swipe');
+}
+
+// ── Cards ──
+function renderCards() {
+  const stack=document.getElementById('card-stack');
+  stack.querySelectorAll('.player-card').forEach(c=>c.remove());
+  const rem=cards.slice(cardIdx);
+  document.getElementById('sw-cnt').textContent = rem.length+' Spieler';
+  if(!rem.length){
+    document.getElementById('no-more').classList.add('show');
+    document.getElementById('btn-no').style.visibility='hidden';
+    document.getElementById('btn-yes').style.visibility='hidden';
+    return;
+  }
+  document.getElementById('no-more').classList.remove('show');
+  document.getElementById('btn-no').style.visibility='';
+  document.getElementById('btn-yes').style.visibility='';
+  rem.slice(0,3).reverse().forEach((p,si)=>{
+    const isTop=si===Math.min(rem.length,3)-1;
+    const card=makeCard(p,isTop);
+    if(!isTop){
+      if(si===0) card.style.transform='rotate(-2.5deg) scale(.965) translateY(8px)';
+      else card.style.transform='rotate(2deg) scale(.93) translateY(16px)';
+      card.style.zIndex=si;
+    } else { card.classList.add('top'); card.style.zIndex=10; initDrag(card); }
+    stack.insertBefore(card,stack.firstChild);
+  });
+}
+
+// Position-specific gradient colours
+const POS_COLORS = {
+  GK:  ['#1a3d28','#0d2016'],
+  DEF: ['#1a2d5c','#0d1830'],
+  MID: ['#4a380d','#281e06'],
+  ATT: ['#5c1a1a','#300d0d'],
+};
+// Jersey SVG art
+function jerseyIcon(pos, ovr) {
+  const c1 = {GK:'#2a7a4e',DEF:'#2a5aaa',MID:'#aa8a2a',ATT:'#aa2a2a'}[pos];
+  const c2 = {GK:'#1A5C38',DEF:'#1A3A6E',MID:'#6E4E1A',ATT:'#6E1A1A'}[pos];
+  return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" class="jersey-svg">
+    <defs>
+      <linearGradient id="jg${pos}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${c1}"/>
+        <stop offset="100%" stop-color="${c2}"/>
+      </linearGradient>
+    </defs>
+    <path d="M20,8 L8,22 L18,28 L18,72 L62,72 L62,28 L72,22 L60,8 L50,14 Q40,18 30,14 Z"
+          fill="url(#jg${pos})" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>
+    <text x="40" y="50" text-anchor="middle" dominant-baseline="middle"
+          font-family="Barlow Condensed,sans-serif" font-weight="900"
+          font-size="18" fill="rgba(255,255,255,.9)">${ovr}</text>
+  </svg>`;
+}
+
+function makeCard(p, isTop) {
+  const card=document.createElement('div'); card.className='player-card';
+  const [c1,c2]=POS_COLORS[p.pos];
+  const isGK=p.pos==='GK';
+  const stats = STAT_KEYS.map((k,i)=>`
+    <div class="stat-item">
+      <div class="stat-val">${p[k]||'—'}</div>
+      <div class="stat-lbl">${isGK?GK_STAT_LBLS[i]:STAT_LBLS[i]}</div>
+    </div>`).join('');
+  const lastName=p.name.split(' ').pop();
+  const valStr=p.val>=1e6?(p.val/1e6).toFixed(1)+'M':p.val>=1e3?(p.val/1e3).toFixed(0)+'K':'—';
+  card.innerHTML=`
+    <div class="card-bg" style="background:linear-gradient(155deg,${c1},${c2})"></div>
+    <div class="card-noise"></div>
+    <div class="card-top-bar" style="background:linear-gradient(90deg,var(--gold),transparent)"></div>
+    <div class="card-ovr-big">${p.ovr}</div>
+    <div class="card-pos-badge ${p.pos}">${p.pos}</div>
+    <div class="card-jersey-art">${jerseyIcon(p.pos,p.ovr)}</div>
+    <div class="card-stats-grid">${stats}</div>
+    <div class="card-bottom">
+      <div class="card-name">${p.name}</div>
+      <div class="card-pills">
+        <span class="pill">${p.nat}</span>
+        ${p.age?`<span class="pill">${p.age} J.</span>`:''}
+        ${p.val>=1e6?`<span class="pill gold">€${valStr}</span>`:''}
+        ${p.sm>=4?`<span class="pill gold">${'★'.repeat(p.sm)}</span>`:''}
+      </div>
+    </div>`;
+  return card;
+}
+
+// ── Swipe actions ──
+function confirmPlayer() {
+  const player=cards[cardIdx]; if(!player) return;
+  slots[curIdx].player=player; slots[curIdx].filled=true;
+  toast('✓ '+player.name);
+  if(replacing!==null){ replacing=null; showResult(); return; }
+  const next=slots.findIndex((s,i)=>i>curIdx&&!s.filled);
+  if(next===-1){ const any=slots.findIndex(s=>!s.filled); if(any===-1){showResult();return;} curIdx=any; }
+  else curIdx=next;
+  cards=filteredPool(slots[curIdx].pos); cardIdx=0;
+  renderSwipeScreen(curIdx);
+}
+function rejectPlayer(){ cardIdx++; renderCards(); renderMiniPitch(curIdx); }
+
+function animateSwipe(dir){
+  const top=document.querySelector('.player-card.top'); if(!top) return;
+  top.style.setProperty('--fx',dir==='yes'?'130vw':'-130vw');
+  top.style.setProperty('--fr',dir==='yes'?'28deg':'-28deg');
+  top.style.animation='flyOut .3s forwards ease-in';
+  setTimeout(()=>{ if(dir==='yes') confirmPlayer(); else rejectPlayer(); },160);
+}
+
+document.getElementById('btn-yes').addEventListener('click',()=>animateSwipe('yes'));
+document.getElementById('btn-no').addEventListener('click',()=>animateSwipe('no'));
+document.getElementById('btn-skip').addEventListener('click',()=>{
+  if(replacing!==null){replacing=null;showResult();return;}
+  const next=slots.findIndex((s,i)=>i>curIdx&&!s.filled);
+  if(next===-1){showResult();return;}
+  curIdx=next; cards=filteredPool(slots[curIdx].pos); cardIdx=0;
+  renderSwipeScreen(curIdx);
+});
+document.getElementById('skip-nmore').addEventListener('click',()=>{
+  const next=slots.findIndex((s,i)=>i>curIdx&&!s.filled);
+  if(next===-1){showResult();return;}
+  curIdx=next; cards=filteredPool(slots[curIdx].pos); cardIdx=0;
+  renderSwipeScreen(curIdx);
+});
+
+// ── Drag ──
+function initDrag(card){
+  let sx,sy,cx=0,cy=0,on=false;
+  const iy=document.getElementById('ind-yes'),in_=document.getElementById('ind-no');
+  const xy=e=>e.touches?[e.touches[0].clientX,e.touches[0].clientY]:[e.clientX,e.clientY];
+  const start=e=>{[sx,sy]=xy(e);cx=cy=0;on=true;card.classList.add('dragging');};
+  const move=e=>{
+    if(!on)return; const[x,y]=xy(e); cx=x-sx; cy=y-sy;
+    card.style.transform=`translateX(${cx}px) translateY(${cy}px) rotate(${cx*.07}deg)`;
+    const r=Math.min(Math.abs(cx)/110,1);
+    iy.style.opacity=cx>0?r:0; in_.style.opacity=cx<0?r:0;
+  };
+  const end=e=>{
+    if(!on)return; on=false; card.classList.remove('dragging');
+    iy.style.opacity=in_.style.opacity=0;
+    if(cx>85) animateSwipe('yes');
+    else if(cx<-85) animateSwipe('no');
+    else{card.style.transform='';card.style.transition='transform .3s';setTimeout(()=>card.style.transition='',300);}
+  };
+  card.addEventListener('mousedown',start);
+  document.addEventListener('mousemove',move);
+  document.addEventListener('mouseup',end);
+  card.addEventListener('touchstart',start,{passive:true});
+  document.addEventListener('touchmove',move,{passive:true});
+  document.addEventListener('touchend',end);
+}
+
+// ════════════════════════════════════════════
+//  SCREEN 4 — RESULT
+// ════════════════════════════════════════════
+function showResult(){
+  const filled=slots.filter(s=>s.filled).length;
+  document.getElementById('res-title').textContent=cfg.clubName+' Dream XI';
+  document.getElementById('res-meta').textContent=`${filled}/11 · Tippe zum Austauschen`;
+  document.getElementById('res-fm').textContent=cfg.formation;
+  renderBigPitch(); show('s-result');
+}
+function renderBigPitch(){
+  const f=FORMATIONS[cfg.formation];
+  const rows=document.getElementById('big-rows'); rows.innerHTML='';
+  [{pos:'ATT',count:f.ATT},{pos:'MID',count:f.MID},{pos:'DEF',count:f.DEF},{pos:'GK',count:1}]
+    .forEach(({pos,count})=>{
+      const row=document.createElement('div'); row.className='big-row';
+      const ps=slots.filter(s=>s.pos===pos);
+      for(let i=0;i<count;i++){
+        const slot=ps[i]; const si=slot?slots.indexOf(slot):-1;
+        const div=document.createElement('div'); div.className='big-player';
+        if(slot?.filled){
+          const nm=slot.player.name.split(' ').pop();
+          div.innerHTML=`<div class="big-jersey ${pos}">${POS_ICON[pos]}</div><div class="big-name">${nm}</div>`;
+          div.onclick=()=>{navigateToSlot(si);};
+        } else {
+          div.innerHTML=`<div class="big-jersey empty">+</div><div class="big-name empty">${POS_LBL[pos]}</div>`;
+          if(si>=0) div.onclick=()=>{navigateToSlot(si);};
+        }
+        row.appendChild(div);
+      }
+      rows.appendChild(row);
+    });
+}
+
+document.getElementById('new-team-btn').addEventListener('click',()=>show('s-team'));
+document.getElementById('share-btn').addEventListener('click',()=>{
+  const filled=slots.filter(s=>s.filled);
+  if(!filled.length){toast('Noch leer!');return;}
+  const txt=`${cfg.clubName} Dream XI (${cfg.formation})\n`+
+    filled.map(s=>`${POS_ICON[s.pos]} ${s.player.name} — OVR ${s.player.ovr}`).join('\n')+
+    '\n\n#DreamXI #FC26';
+  navigator.clipboard?.writeText(txt).then(()=>toast('📋 Kopiert!')).catch(()=>toast('Kopieren fehlgeschlagen'));
+});
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
+renderClubs();
+</script>
+</body>
+</html>
